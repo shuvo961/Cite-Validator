@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Validate References - Cite Validator</title>
+    <meta name="description" content="Use Cite Validator to validate academic references, check citations, verify DOI metadata, and detect likely hallucinated or fabricated sources for free.">
+    <meta name="keywords" content="validate references, citation checker, DOI checker, reference validation, academic citation validation, bibliography checker, free citation checker">
+    <meta name="author" content="Sabbir Alom Shuvo">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://sashuvo.com">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="ambient-page">
+      <header class="site-header glass-nav">
+        <a class="brand" href="/" aria-label="Cite Validator home">
+          <img src="/logo.svg" alt="" class="brand-logo">
+          <span>Cite Validator</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="/">Home</a>
+          <a href="/validate.html">Validator</a>
+          <a href="/converter.html">Converter</a>
+          <a href="/about.html">About</a>
+        </nav>
+        <div class="status-pill" id="healthStatus">Checking API</div>
+      </header>
+
+      <main class="validator-page">
+        <section class="page-hero compact-hero glass-panel">
+          <p class="eyebrow">Reference validation workspace</p>
+          <h1>Check a citation</h1>
+          <p>Paste academic references, import a bibliography file, compare metadata field by field, and export the results.</p>
+        </section>
+
+        <section class="validator-layout">
+          <section class="validator-panel glass-panel" aria-labelledby="validatorHeading">
+            <div class="panel-heading">
+              <div>
+                <h2 id="validatorHeading">Validate references</h2>
+                <p>Paste one or more academic references below.</p>
+              </div>
+              <label class="style-control">
+                Citation style
+                <select id="styleSelect">
+                  <option value="auto">Auto detect</option>
+                  <option value="apa">APA</option>
+                  <option value="ieee">IEEE</option>
+                  <option value="mla">MLA</option>
+                  <option value="chicago">Chicago</option>
+                  <option value="vancouver">Vancouver</option>
+                </select>
+              </label>
+              <label class="style-control">
+                Output
+                <select id="outputModeSelect">
+                  <option value="summary">Summary</option>
+                  <option value="brief">Brief</option>
+                  <option value="detailed">Detailed</option>
+                </select>
+              </label>
+            </div>
+            <textarea id="referencesInput" spellcheck="false" aria-label="References to validate" placeholder="Paste an APA, IEEE, MLA, Chicago, Vancouver, DOI, PMID, arXiv, ISBN, or bibliography entry here...">Smith, J., &amp; Doe, A. (2020). Deep learning for citation verification. Journal of Scholarly Integrity, 12(3), 101-118. https://doi.org/10.1145/3368089.3409749</textarea>
+            <div class="ai-assist-strip" id="aiAssistStrip">
+              <span class="ai-dot"></span>
+              <span>Built-in AI paste repair is active locally: PDF/OCR cleanup, broken DOI repair, page-number removal, and automatic reference splitting. No external AI is used.</span>
+              <strong id="detectedCount">Ready</strong>
+            </div>
+            <div class="actions">
+              <button id="validateBtn">Validate references</button>
+              <button id="sampleBtn" class="secondary">Load samples</button>
+              <label class="file-button">
+                Import file
+                <input id="fileInput" type="file" accept=".txt,.bib,.ris,.csv">
+              </label>
+              <button id="clearBtn" class="ghost">Clear</button>
+            </div>
+            <p class="note">Supports TXT, BibTeX, RIS, and CSV imports. CSV and PDF reports are available after validation.</p>
+          </section>
+
+          <aside class="process-panel glass-panel" aria-label="Validation process">
+            <h2>Evidence first</h2>
+            <ol class="process-list">
+              <li><span>01</span>Split and repair pasted references.</li>
+              <li><span>02</span>Search trusted sources.</li>
+              <li><span>03</span>Compare key fields.</li>
+              <li><span>04</span>Flag risk clearly.</li>
+            </ol>
+          </aside>
+        </section>
+
+        <section class="results-section glass-panel hidden" id="resultsSection">
+          <div class="panel-heading">
+            <div>
+              <h2>Validation results</h2>
+              <p>Each result includes status, confidence, risk, corrected citation, and evidence.</p>
+            </div>
+          <div class="export-actions">
+            <a id="csvExport" class="download disabled" href="#">CSV</a>
+            <a id="pdfExport" class="download disabled" href="#">PDF</a>
+            <a id="docExport" class="download disabled" href="#">DOC</a>
+            <a id="bibExport" class="download disabled" href="#">BibTeX</a>
+          </div>
+          </div>
+          <div id="summary" class="summary-grid hidden"></div>
+          <div id="loading" class="loading hidden">
+            <div class="loader-mark" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div>
+              <span>Searching trusted metadata sources and separating references...</span>
+              <div id="progressList" class="progress-list"></div>
+            </div>
+          </div>
+          <div id="emptyState" class="empty-state">Run a validation to see status, risk, field comparisons, and source evidence.</div>
+          <div id="results" class="results-list"></div>
+        </section>
+      </main>
+
+      <footer class="site-footer glass-footer">
+        <p>Cite Validator is totally free.</p>
+        <p><button id="examplesBtn" class="examples-link" type="button">Examples</button></p>
+        <p>Developed by Sabbir Alom Shuvo. <a href="https://sashuvo.com" target="_blank" rel="noreferrer">Contact me</a></p>
+      </footer>
+    </div>
+
+    <dialog class="examples-modal" id="examplesModal" aria-labelledby="examplesTitle">
+      <div class="modal-card glass-panel">
+        <div class="modal-heading">
+          <div>
+            <p class="eyebrow">Supported paste formats</p>
+            <h2 id="examplesTitle">Examples Cite Validator can split</h2>
+          </div>
+          <button id="closeExamplesBtn" class="ghost modal-close" type="button">Close</button>
+        </div>
+        <div class="examples-grid">
+          <section>
+            <h3>One per line or blank line</h3>
+            <pre>Smith, J. (2020). Paper title. Journal, 12(3), 1-9.
+
+Doe, A. (2021). Another paper. Science, 5, 10-18.</pre>
+          </section>
+          <section>
+            <h3>Numbered bibliography</h3>
+            <pre>6 S. Grimme and P. R. Schreiner, Computational Chemistry...
+7R. Iftimie, P. Minary and M. E. Tuckerman, Ab initio...</pre>
+          </section>
+          <section>
+            <h3>PDF/OCR text pasted together</h3>
+            <pre>AnandN,ChangKC,YehAC, etal (2023)Development...
+https: //doi.org/10.1016/j.jmatprotec.2023.118069 BaldiN...</pre>
+          </section>
+          <section>
+            <h3>Identifiers</h3>
+            <pre>DOI: 10.1038/s41586-020-2649-2
+PMID: 12345678
+arXiv: 1706.03762
+ISBN: 9780262033848</pre>
+          </section>
+        </div>
+        <p class="note">Best results: paste the bibliography section as-is. If a PDF copy inserts page numbers, broken DOI URLs, or missing spaces, the built-in local AI repair engine will try to clean it automatically without sending text to an external AI service.</p>
+      </div>
+    </dialog>
+
+    <template id="resultTemplate">
+      <article class="result-card">
+        <div class="result-header">
+          <div class="status-icon" aria-hidden="true"></div>
+          <div>
+            <h3></h3>
+            <p class="source-line"></p>
+          </div>
+          <div class="score-stack">
+            <span class="badge"></span>
+            <span class="risk"></span>
+          </div>
+        </div>
+        <div class="meta-row">
+          <span class="confidence"></span>
+          <span class="action"></span>
+          <span class="detected-style"></span>
+        </div>
+        <p class="result-summary"></p>
+        <details class="full-report">
+          <summary>Full depth report</summary>
+          <div class="reference-block">
+            <h4>Original</h4>
+            <p class="original"></p>
+          </div>
+          <div class="reference-block corrected-wrap">
+            <h4>Corrected</h4>
+            <p class="corrected"></p>
+          </div>
+          <div class="field-table"></div>
+          <div class="evidence"></div>
+        </details>
+      </article>
+    </template>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

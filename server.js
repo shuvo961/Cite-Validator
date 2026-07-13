@@ -639,6 +639,15 @@ function setSessionCookie(res, session) {
   ]);
 }
 
+function setGoogleCallbackCookies(res, session) {
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  res.setHeader("set-cookie", [
+    `cv_session=${encodeURIComponent(session.id)}; Path=/; HttpOnly; SameSite=Lax; Expires=${session.expiresAt.toUTCString()}${secure}`,
+    `cv_oauth_state=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`,
+    `cv_oauth_return=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`
+  ]);
+}
+
 function clearSessionCookie(res) {
   res.setHeader("set-cookie", "cv_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
 }
@@ -646,6 +655,13 @@ function clearSessionCookie(res) {
 function redirect(res, location) {
   res.writeHead(302, { location });
   res.end();
+}
+
+function safeAuthReturnPath(value) {
+  const raw = String(value || "").trim();
+  const allowed = new Set(["/ownershuvo", "/dashboard", "/dashboard.html", "/validate", "/converter", "/doi-checker", "/fake-citation-detector"]);
+  if (allowed.has(raw)) return raw;
+  return "/dashboard.html";
 }
 
 function requireUser(req, res) {
@@ -1217,8 +1233,12 @@ async function handleAuth(req, res) {
       return;
     }
     const state = crypto.randomBytes(16).toString("hex");
+    const returnTo = safeAuthReturnPath(url.searchParams.get("returnTo"));
     const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
-    res.setHeader("set-cookie", `cv_oauth_state=${state}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600${secure}`);
+    res.setHeader("set-cookie", [
+      `cv_oauth_state=${state}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600${secure}`,
+      `cv_oauth_return=${encodeURIComponent(returnTo)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600${secure}`
+    ]);
     const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     authUrl.searchParams.set("client_id", process.env.GOOGLE_CLIENT_ID);
     authUrl.searchParams.set("redirect_uri", `${baseUrl}/auth/google/callback`);
@@ -1265,9 +1285,9 @@ async function handleAuth(req, res) {
         avatarUrl: profile.picture || ""
       });
       const session = createSession(user.id);
-      setSessionCookie(res, session);
+      setGoogleCallbackCookies(res, session);
       auditLog({ userId: user.id, action: "google_login" });
-      redirect(res, "/dashboard.html");
+      redirect(res, safeAuthReturnPath(cookies.cv_oauth_return));
     } catch (error) {
       console.error(error);
       redirect(res, `/login.html?error=${encodeURIComponent(error.message)}`);

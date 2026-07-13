@@ -1,3 +1,5 @@
+restoreDashboardHeader();
+
 const profileCard = document.querySelector("#profileCard");
 const historyList = document.querySelector("#historyList");
 const logoutBtn = document.querySelector("#logoutBtn");
@@ -88,6 +90,44 @@ deleteAccountBtn?.addEventListener("click", async () => {
     deleteAccountBtn.disabled = false;
   }
 });
+
+function restoreDashboardHeader() {
+  const header = document.querySelector(".site-header.product-nav");
+  const nav = header?.querySelector(".site-nav");
+  const actions = header?.querySelector(".nav-actions");
+  if (!header || !nav || !actions) return;
+
+  nav.setAttribute("aria-label", "Workspace navigation");
+  nav.innerHTML = `
+    <a href="/dashboard" class="active">Overview</a>
+    <a href="/validate">Validator</a>
+    <a href="/converter">Converter</a>
+    <a href="/doi-checker">DOI Checker</a>
+    <a id="adminLink" class="hidden" href="/ownershuvo">Admin</a>
+  `;
+
+  actions.querySelectorAll(".language-select, [data-auth-link], .login-link").forEach((item) => item.remove());
+  if (!actions.querySelector("[data-theme-toggle]")) {
+    actions.insertAdjacentHTML("afterbegin", `<button class="theme-toggle" type="button" data-theme-toggle>Dark</button>`);
+  }
+  if (!actions.querySelector("#accountMenu")) {
+    actions.insertAdjacentHTML("beforeend", `
+      <div class="account-menu" id="accountMenu">
+        <button id="accountMenuBtn" class="account-menu-button" type="button" aria-expanded="false">
+          <span id="accountMenuName">Account</span>
+        </button>
+        <div class="account-menu-panel" id="accountMenuPanel">
+          <a href="/dashboard">Overview</a>
+          <button id="openSettingsBtn" type="button">Settings</button>
+          <a href="/validate">New validation</a>
+          <a href="/converter">Converter</a>
+          <a id="adminMenuLink" class="hidden" href="/ownershuvo">Admin</a>
+          <button id="logoutBtn" type="button">Log out</button>
+        </div>
+      </div>
+    `);
+  }
+}
 
 async function loadHistory() {
   historyList.innerHTML = `<div class="skeleton-card"></div><div class="skeleton-card"></div>`;

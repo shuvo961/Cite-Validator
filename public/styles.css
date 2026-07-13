@@ -13332,3 +13332,85 @@ html[data-theme="dark"] a:not(.download):not(.primary-pill):not(.secondary-pill)
 html[data-theme="dark"] .footer-button-link {
   color: #93c5fd !important;
 }
+
+/* Dashboard header guard: keep account controls contained */
+body:has(.dashboard-page) .site-header.product-nav {
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+}
+
+body:has(.dashboard-page) .site-header.product-nav .site-nav {
+  display: flex !important;
+  justify-content: center !important;
+  gap: clamp(16px, 2vw, 28px) !important;
+  min-width: 0 !important;
+}
+
+body:has(.dashboard-page) .site-header.product-nav .nav-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  min-width: max-content !important;
+}
+
+body:has(.dashboard-page) .site-header.product-nav .language-select,
+body:has(.dashboard-page) .site-header.product-nav [data-auth-link],
+body:has(.dashboard-page) .site-header.product-nav .login-link {
+  display: none !important;
+}
+
+body:has(.dashboard-page) .account-menu {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+body:has(.dashboard-page) .account-menu-panel {
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 12px) !important;
+  display: grid !important;
+  min-width: 230px !important;
+  width: max-content !important;
+  gap: 6px !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transform: translateY(-8px) scale(0.98) !important;
+  pointer-events: none !important;
+  z-index: 80 !important;
+}
+
+body:has(.dashboard-page) .account-menu.is-open .account-menu-panel {
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+  pointer-events: auto !important;
+}
+
+@media (max-width: 820px) {
+  body:has(.dashboard-page) .site-header.product-nav .site-nav,
+  body:has(.dashboard-page) .site-header.product-nav .nav-actions {
+    display: none !important;
+  }
+
+  body:has(.dashboard-page) .site-header.product-nav.nav-open .site-nav,
+  body:has(.dashboard-page) .site-header.product-nav.nav-open .nav-actions {
+    display: grid !important;
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body:has(.dashboard-page) .account-menu {
+    width: 100% !important;
+    display: grid !important;
+  }
+
+  body:has(.dashboard-page) .account-menu-panel {
+    position: static !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-top: 8px !important;
+  }
+}

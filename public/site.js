@@ -116,6 +116,7 @@ function liftFixedHeader() {
 function normalizePublicHeader() {
   const header = document.querySelector(".site-header.product-nav");
   if (!header || document.body.classList.contains("admin-page")) return;
+  if (document.querySelector(".dashboard-page")) return;
   const normalizedPath = location.pathname.replace(/\.html$/, "") || "/";
   if (normalizedPath === "/login") return;
   if (normalizedPath === "/dashboard") return;

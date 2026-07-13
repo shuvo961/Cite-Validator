@@ -20,11 +20,23 @@
           <a href="/validate">Validator</a>
           <a href="/converter">Converter</a>
           <a href="/doi-checker">DOI Checker</a>
-          <a id="adminLink" class="hidden" href="/admin">Admin</a>
+          <a id="adminLink" class="hidden" href="/ownershuvo">Admin</a>
         </nav>
         <div class="nav-actions">
           <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
-          <button id="logoutBtn" class="ghost" type="button">Log out</button>
+          <div class="account-menu" id="accountMenu">
+            <button id="accountMenuBtn" class="account-menu-button" type="button" aria-expanded="false">
+              <span id="accountMenuName">Account</span>
+            </button>
+            <div class="account-menu-panel" id="accountMenuPanel">
+              <a href="/dashboard">Overview</a>
+              <button id="openSettingsBtn" type="button">Settings</button>
+              <a href="/validate">New validation</a>
+              <a href="/converter">Converter</a>
+              <a id="adminMenuLink" class="hidden" href="/ownershuvo">Admin</a>
+              <button id="logoutBtn" type="button">Log out</button>
+            </div>
+          </div>
         </div>
       </header>
       <main class="dashboard-page workspace-page">
@@ -66,9 +78,10 @@
             <div class="skeleton-card"></div>
           </div>
         </section>
-        <section class="dashboard-settings glass-panel workspace-panel">
+        <section class="dashboard-settings glass-panel workspace-panel hidden" id="workspaceSettings">
           <div class="panel-heading">
             <div><h2>Workspace settings</h2><p>Save local preferences for citation checking.</p></div>
+            <button id="closeSettingsBtn" class="ghost" type="button">Close settings</button>
           </div>
           <form id="settingsForm" class="settings-grid">
             <label>Default citation style
@@ -86,6 +99,22 @@
                 <option value="summary">Summary</option>
                 <option value="brief">Brief</option>
                 <option value="detailed">Detailed</option>
+              </select>
+            </label>
+            <label>Theme preference
+              <select name="themePreference">
+                <option value="system">Use current browser choice</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
+            <label>Default export
+              <select name="defaultExport">
+                <option value="pdf">PDF</option>
+                <option value="csv">CSV</option>
+                <option value="doc">DOC</option>
+                <option value="bib">BibTeX</option>
+                <option value="ris">RIS</option>
               </select>
             </label>
             <button type="submit">Save settings</button>

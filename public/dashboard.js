@@ -8,6 +8,14 @@ const settingsStatus = document.querySelector("#settingsStatus");
 const deleteAccountBtn = document.querySelector("#deleteAccountBtn");
 const historySearch = document.querySelector("#historySearch");
 const historyFilter = document.querySelector("#historyFilter");
+const accountMenu = document.querySelector("#accountMenu");
+const accountMenuBtn = document.querySelector("#accountMenuBtn");
+const accountMenuName = document.querySelector("#accountMenuName");
+const accountMenuPanel = document.querySelector("#accountMenuPanel");
+const adminMenuLink = document.querySelector("#adminMenuLink");
+const openSettingsBtn = document.querySelector("#openSettingsBtn");
+const closeSettingsBtn = document.querySelector("#closeSettingsBtn");
+const workspaceSettings = document.querySelector("#workspaceSettings");
 
 let historyJobs = [];
 
@@ -16,6 +24,7 @@ const me = await meResponse.json();
 if (!me.user) window.location.href = "/login";
 
 renderProfile(me.user);
+renderAccountMenu(me.user);
 loadHistory();
 loadSettings();
 
@@ -27,11 +36,43 @@ logoutBtn?.addEventListener("click", async () => {
   window.location.href = "/";
 });
 
+accountMenuBtn?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  const isOpen = accountMenu?.classList.toggle("is-open");
+  accountMenuBtn.setAttribute("aria-expanded", String(Boolean(isOpen)));
+});
+
+document.addEventListener("click", (event) => {
+  if (!accountMenu?.contains(event.target)) closeAccountMenu();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeAccountMenu();
+    hideSettings();
+  }
+});
+
+openSettingsBtn?.addEventListener("click", () => {
+  showSettings();
+  closeAccountMenu();
+});
+
+closeSettingsBtn?.addEventListener("click", hideSettings);
+
 settingsForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const values = Object.fromEntries(new FormData(settingsForm).entries());
   localStorage.setItem("cv_default_style", values.defaultStyle || "auto");
   localStorage.setItem("cv_default_output", values.defaultOutput || "summary");
+  localStorage.setItem("cv_default_export", values.defaultExport || "pdf");
+  if (values.themePreference === "system") {
+    localStorage.removeItem("cv_theme");
+    document.documentElement.dataset.theme = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  } else if (["light", "dark"].includes(values.themePreference)) {
+    localStorage.setItem("cv_theme", values.themePreference);
+    document.documentElement.dataset.theme = values.themePreference;
+  }
   settingsStatus.textContent = "Settings saved.";
 });
 
@@ -112,6 +153,9 @@ function loadSettings() {
   if (!settingsForm) return;
   settingsForm.elements.defaultStyle.value = localStorage.getItem("cv_default_style") || "auto";
   settingsForm.elements.defaultOutput.value = localStorage.getItem("cv_default_output") || "summary";
+  settingsForm.elements.defaultExport.value = localStorage.getItem("cv_default_export") || "pdf";
+  settingsForm.elements.themePreference.value = localStorage.getItem("cv_theme") || "system";
+  if (window.location.hash === "#settings") showSettings();
 }
 
 function renderCharts(jobs) {
@@ -176,6 +220,28 @@ function renderProfile(user) {
       <span class="status-pill">${escapeHtml(user.role || "user")} account</span>
     </div>
   `;
+}
+
+function renderAccountMenu(user) {
+  if (!user) return;
+  if (accountMenuName) accountMenuName.textContent = user.name?.split(" ")[0] || "Account";
+  if (adminMenuLink && user.role === "admin") adminMenuLink.classList.remove("hidden");
+}
+
+function closeAccountMenu() {
+  accountMenu?.classList.remove("is-open");
+  accountMenuBtn?.setAttribute("aria-expanded", "false");
+}
+
+function showSettings() {
+  workspaceSettings?.classList.remove("hidden");
+  workspaceSettings?.scrollIntoView({ behavior: "smooth", block: "start" });
+  history.replaceState(null, "", "#settings");
+}
+
+function hideSettings() {
+  workspaceSettings?.classList.add("hidden");
+  if (window.location.hash === "#settings") history.replaceState(null, "", window.location.pathname);
 }
 
 function escapeHtml(value) {

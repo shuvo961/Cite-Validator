@@ -44,6 +44,8 @@ const publicDir = path.join(__dirname, "public");
 loadEnv(path.join(__dirname, ".env"));
 
 const port = Number(process.env.PORT || 3000);
+const ownerEmail = "shovon961@gmail.com";
+const localOwnerDefaultPassword = "CiteOwner@2026!";
 const rateLimitBuckets = new Map();
 const asyncValidationJobs = new Map();
 const syncValidationLimit = Number(process.env.SYNC_VALIDATION_LIMIT || 30);
@@ -59,6 +61,7 @@ const runtimeMetrics = {
 };
 
 initDb();
+seedOwnerPasswordLogin();
 
 function loadEnv(filePath) {
   if (!existsSync(filePath)) return;
@@ -70,6 +73,31 @@ function loadEnv(filePath) {
     const key = trimmed.slice(0, index).trim();
     const value = trimmed.slice(index + 1).trim().replace(/^["']|["']$/g, "");
     if (key && process.env[key] === undefined) process.env[key] = value;
+  }
+}
+
+function seedOwnerPasswordLogin() {
+  const configuredPassword = String(process.env.OWNER_DEFAULT_PASSWORD || "").trim();
+  const password = configuredPassword || (process.env.NODE_ENV === "production" ? "" : localOwnerDefaultPassword);
+  if (!password) return;
+  if (password.length < 8) {
+    console.warn("OWNER_DEFAULT_PASSWORD must be at least 8 characters. Owner password login was not seeded.");
+    return;
+  }
+  try {
+    createPasswordUser({ name: "Sabbir Alom Shuvo", email: ownerEmail, password });
+    console.info("Owner password login is ready.");
+  } catch (error) {
+    if (/already exists/i.test(error.message)) {
+      try {
+        setUserPassword({ email: ownerEmail, password });
+        console.info("Owner password login is ready.");
+      } catch (setError) {
+        console.warn(`Owner password login reset failed: ${setError.message}`);
+      }
+    } else {
+      console.warn(`Owner password login seed failed: ${error.message}`);
+    }
   }
 }
 
@@ -685,6 +713,10 @@ function requireAdmin(req, res) {
 
 async function handleStatic(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
+  if (url.pathname === "/" && getCurrentUser(req)) {
+    redirect(res, "/dashboard");
+    return;
+  }
   if (url.pathname === "/robots.txt") {
     res.writeHead(200, { "content-type": mimeTypes[".txt"], "cache-control": "public, max-age=3600" });
     res.end(`User-agent: *\nAllow: /\nDisallow: /ownershuvo\nDisallow: /shuvo-admin.html\nDisallow: /api/\nSitemap: ${getPublicBaseUrl(req)}/sitemap.xml\nHost: ${getPublicBaseUrl(req)}\n`);

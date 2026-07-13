@@ -118,6 +118,7 @@ function normalizePublicHeader() {
   if (!header || document.body.classList.contains("admin-page")) return;
   const normalizedPath = location.pathname.replace(/\.html$/, "") || "/";
   if (normalizedPath === "/login") return;
+  if (normalizedPath === "/dashboard") return;
   const isAdminShell = location.pathname.includes("ownershuvo") || location.pathname.includes("admin");
   if (isAdminShell) return;
   let nav = header.querySelector(".site-nav");
@@ -170,10 +171,14 @@ function normalizePublicHeader() {
 }
 
 function wireThemeToggle() {
+  const themeFromPreference = (preference) => {
+    if (preference === "dark" || preference === "light") return preference;
+    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  };
   const saved = localStorage.getItem("cv_theme") || "light";
-  document.documentElement.dataset.theme = saved;
+  document.documentElement.dataset.theme = themeFromPreference(saved);
   document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
-    button.textContent = saved === "dark" ? "Light" : "Dark";
+    button.textContent = document.documentElement.dataset.theme === "dark" ? "Light" : "Dark";
     button.addEventListener("click", () => {
       const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
       document.documentElement.dataset.theme = next;

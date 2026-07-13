@@ -12933,3 +12933,402 @@ body:not(:has(.landing-hero.product-hero)) .ambient-page::after {
     background-position: 42px 24px, -36px 34px, 28px -30px, -22px -18px;
   }
 }
+
+/* True EOF override: mobile stability, dark contrast, dashboard account menu */
+@media (max-width: 820px) {
+  body {
+    overflow-x: hidden !important;
+  }
+
+  .site-header.product-nav,
+  body > .site-header.product-nav {
+    width: min(100% - 18px, 100%) !important;
+    top: 8px !important;
+    grid-template-columns: auto 1fr auto !important;
+    gap: 8px !important;
+    padding: 10px !important;
+    border-radius: 20px !important;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex !important;
+    min-width: 44px !important;
+    min-height: 42px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0 !important;
+  }
+
+  .mobile-menu-toggle::before {
+    content: "Menu";
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .site-header .brand {
+    min-width: 0 !important;
+    gap: 8px !important;
+  }
+
+  .site-header .brand span {
+    max-width: 42vw !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .site-header .site-nav,
+  .site-header .nav-actions {
+    display: none !important;
+  }
+
+  .site-header.nav-open {
+    align-items: start !important;
+  }
+
+  .site-header.nav-open .site-nav,
+  .site-header.nav-open .nav-actions {
+    display: grid !important;
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .site-header.nav-open .site-nav {
+    margin-top: 8px !important;
+  }
+
+  .site-header.nav-open .site-nav a,
+  .site-header.nav-open .nav-menu-button,
+  .site-header.nav-open .nav-actions > *,
+  .site-header.nav-open .account-menu-button {
+    width: 100% !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .site-header.nav-open .nav-menu {
+    width: 100% !important;
+  }
+
+  .site-header.nav-open .nav-menu-panel {
+    position: static !important;
+    display: grid !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-top: 8px !important;
+  }
+
+  .language-select,
+  .theme-toggle,
+  .login-link,
+  .status-pill,
+  .download,
+  button,
+  .file-button,
+  .primary-pill,
+  .secondary-pill {
+    max-width: 100% !important;
+    white-space: normal !important;
+  }
+
+  .actions,
+  .converter-actions,
+  .risk-actions,
+  .export-actions,
+  .history-actions,
+  .workspace-hero-actions,
+  .hero-actions,
+  .batch-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .actions > *,
+  .converter-actions > *,
+  .risk-actions > *,
+  .export-actions > *,
+  .history-actions > *,
+  .workspace-hero-actions > *,
+  .batch-actions > * {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .validator-page,
+  .converter-page,
+  .doi-page,
+  .risk-page,
+  .workspace-page,
+  .control-page,
+  .content-page,
+  .supported-formats {
+    width: min(100% - 18px, 100%) !important;
+    max-width: min(100% - 18px, 100%) !important;
+    padding-top: 88px !important;
+  }
+
+  .validator-layout,
+  .converter-workspace,
+  .doi-workspace,
+  .risk-workspace,
+  .dashboard-grid,
+  .workspace-summary-grid,
+  .feature-grid,
+  .chart-grid,
+  .settings-grid,
+  .format-support-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .validator-panel,
+  .process-panel,
+  .results-section,
+  .converter-editor,
+  .converter-export-panel,
+  .converter-output-panel,
+  .doi-lookup-card,
+  .doi-steps-panel,
+  .doi-result-panel,
+  .risk-input-panel,
+  .risk-signals-panel,
+  .risk-report-panel,
+  .workspace-panel,
+  .profile-card,
+  .credit-card,
+  .glass-panel,
+  .glass-card {
+    padding: 20px !important;
+    border-radius: 18px !important;
+  }
+
+  .panel-heading,
+  .converter-toolbar,
+  .converter-output-head,
+  .risk-report-head,
+  .risk-panel-head,
+  .modal-heading {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  textarea,
+  input,
+  select {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  h1 {
+    font-size: clamp(2.3rem, 13vw, 4rem) !important;
+    line-height: 1.02 !important;
+  }
+
+  h2 {
+    font-size: clamp(1.35rem, 7vw, 2rem) !important;
+  }
+
+  .result-header,
+  .doi-verdict-row,
+  .history-card,
+  .profile-card {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .score-stack,
+  .report-pill-row,
+  .converted-meta,
+  .mismatch-chips {
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  .score-stack > *,
+  .report-pill-row > *,
+  .converted-meta > *,
+  .mismatch-chips > * {
+    width: 100% !important;
+    text-align: center !important;
+  }
+}
+
+.account-menu {
+  position: relative;
+}
+
+.account-menu-button {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.58);
+  color: #172033;
+  padding: 12px 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.account-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  min-width: 220px;
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.16);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  z-index: 30;
+}
+
+.account-menu.is-open .account-menu-panel {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.account-menu-panel a,
+.account-menu-panel button {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #334155;
+  padding: 10px 12px;
+  font: 800 0.92rem/1.1 "Source Sans 3", sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-menu-panel a:hover,
+.account-menu-panel button:hover {
+  color: #243dc1;
+  background: rgba(53, 88, 246, 0.1);
+}
+
+@media (max-width: 820px) {
+  .account-menu-panel {
+    position: static !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    margin-top: 8px !important;
+  }
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  color-scheme: dark !important;
+  color: #e5edf8 !important;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(96, 165, 250, 0.18), transparent 30%),
+    radial-gradient(circle at 86% 20%, rgba(45, 212, 191, 0.12), transparent 32%),
+    linear-gradient(135deg, #07111f 0%, #0f172a 48%, #111827 100%) !important;
+}
+
+html[data-theme="dark"] .site-header.product-nav,
+html[data-theme="dark"] .glass-panel,
+html[data-theme="dark"] .glass-card,
+html[data-theme="dark"] .validator-panel,
+html[data-theme="dark"] .process-panel,
+html[data-theme="dark"] .results-section,
+html[data-theme="dark"] .converter-editor,
+html[data-theme="dark"] .converter-export-panel,
+html[data-theme="dark"] .converter-output-panel,
+html[data-theme="dark"] .doi-lookup-card,
+html[data-theme="dark"] .doi-steps-panel,
+html[data-theme="dark"] .doi-result-panel,
+html[data-theme="dark"] .risk-input-panel,
+html[data-theme="dark"] .risk-signals-panel,
+html[data-theme="dark"] .risk-report-panel,
+html[data-theme="dark"] .workspace-panel,
+html[data-theme="dark"] .profile-card,
+html[data-theme="dark"] .credit-card,
+html[data-theme="dark"] .chart-card,
+html[data-theme="dark"] .history-card,
+html[data-theme="dark"] .account-menu-panel,
+html[data-theme="dark"] .site-footer.product-footer {
+  background: rgba(15, 23, 42, 0.78) !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  color: #e5edf8 !important;
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] strong,
+html[data-theme="dark"] .brand,
+html[data-theme="dark"] .brand span,
+html[data-theme="dark"] .result-header h3,
+html[data-theme="dark"] .report-card-main strong,
+html[data-theme="dark"] .converted-card p,
+html[data-theme="dark"] .doi-verdict-copy h3,
+html[data-theme="dark"] .auth-copy h1,
+html[data-theme="dark"] .workspace-hero h1 {
+  color: #f8fbff !important;
+}
+
+html[data-theme="dark"] p,
+html[data-theme="dark"] span,
+html[data-theme="dark"] small,
+html[data-theme="dark"] em,
+html[data-theme="dark"] label,
+html[data-theme="dark"] .note,
+html[data-theme="dark"] .source-line,
+html[data-theme="dark"] .chart-bar div,
+html[data-theme="dark"] .account-menu-panel a,
+html[data-theme="dark"] .account-menu-panel button,
+html[data-theme="dark"] .site-nav a,
+html[data-theme="dark"] .nav-menu-button {
+  color: #cbd7e8 !important;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select,
+html[data-theme="dark"] .account-menu-button {
+  background: rgba(2, 6, 23, 0.72) !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+  color: #f8fbff !important;
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .empty-state,
+html[data-theme="dark"] .reference-block,
+html[data-theme="dark"] .field-row,
+html[data-theme="dark"] .summary-item,
+html[data-theme="dark"] .metric-grid span,
+html[data-theme="dark"] .risk-report-note,
+html[data-theme="dark"] .risk-issue-list,
+html[data-theme="dark"] .converted-card,
+html[data-theme="dark"] .result-card {
+  background: rgba(2, 6, 23, 0.48) !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+  color: #e5edf8 !important;
+}
+
+html[data-theme="dark"] a:not(.download):not(.primary-pill):not(.secondary-pill),
+html[data-theme="dark"] .footer-button-link {
+  color: #93c5fd !important;
+}

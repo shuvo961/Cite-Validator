@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard - Cite Validator</title>
+    <meta name="description" content="Cite Validator dashboard for full citation validation, saved reports, reference history, citation conversion, and exports.">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="ambient-page">
+      <header class="site-header product-nav">
+        <button class="mobile-menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">Menu</button>
+        <a class="brand" href="/"><img src="/logo.svg" alt="" class="brand-logo"><span>Cite Validator</span></a>
+        <nav class="site-nav">
+          <a href="/validate">Validator</a>
+          <a href="/converter">Converter</a>
+          <a href="/doi-checker">DOI Checker</a>
+          <a id="adminLink" class="hidden" href="/admin">Admin</a>
+        </nav>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+          <button id="logoutBtn" class="ghost" type="button">Log out</button>
+        </div>
+      </header>
+      <main class="dashboard-page workspace-page">
+        <section class="workspace-hero">
+          <div>
+            <p class="eyebrow">Full features unlocked</p>
+            <h1>Your citation workspace.</h1>
+            <p>Review validation history, reopen saved reports, export files, and keep your preferred citation settings ready for the next bibliography.</p>
+            <div class="workspace-hero-actions">
+              <a class="primary-pill" href="/validate">Start validation</a>
+              <a class="secondary-pill" href="/converter">Convert citations</a>
+            </div>
+          </div>
+          <div class="workspace-status-card">
+            <span>Workspace</span>
+            <strong>Free</strong>
+            <em>saved reports and exports</em>
+          </div>
+        </section>
+        <section class="dashboard-grid workspace-summary-grid">
+          <article class="profile-card glass-panel" id="profileCard"></article>
+          <article class="credit-card glass-panel">
+            <h2>Available Checks</h2>
+            <strong>Unlimited</strong>
+            <p>Cite Validator is totally free. Fair-use limits can be added later if public traffic grows.</p>
+          </article>
+        </section>
+        <section class="feature-grid">
+          <a class="glass-card app-tile" href="/validate"><span class="card-kicker">Validate</span><h2>Full citation validator</h2><p>Batch-check references, see confidence, risk, evidence, and exports.</p></a>
+          <a class="glass-card app-tile" href="/converter"><span class="card-kicker">Convert</span><h2>Citation converter</h2><p>Convert references to APA, IEEE, MLA, Chicago, Vancouver, DOC, BibTeX, and RIS.</p></a>
+          <a class="glass-card app-tile" href="/supported-formats"><span class="card-kicker">Guide</span><h2>Supported formats</h2><p>See examples for PDF copy, numbered bibliographies, DOI lists, and messy pasted references.</p></a>
+        </section>
+        <section class="dashboard-analytics glass-panel workspace-panel">
+          <div class="panel-heading">
+            <div><h2>Workspace analytics</h2><p>Quick visual summary of your saved validation history.</p></div>
+          </div>
+          <div id="dashboardCharts" class="chart-grid">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </section>
+        <section class="dashboard-settings glass-panel workspace-panel">
+          <div class="panel-heading">
+            <div><h2>Workspace settings</h2><p>Save local preferences for citation checking.</p></div>
+          </div>
+          <form id="settingsForm" class="settings-grid">
+            <label>Default citation style
+              <select name="defaultStyle">
+                <option value="auto">Auto detect</option>
+                <option value="apa">APA</option>
+                <option value="ieee">IEEE</option>
+                <option value="mla">MLA</option>
+                <option value="chicago">Chicago</option>
+                <option value="vancouver">Vancouver</option>
+              </select>
+            </label>
+            <label>Default output
+              <select name="defaultOutput">
+                <option value="summary">Summary</option>
+                <option value="brief">Brief</option>
+                <option value="detailed">Detailed</option>
+              </select>
+            </label>
+            <button type="submit">Save settings</button>
+          </form>
+          <div class="danger-zone">
+            <div><strong>Delete account data</strong><p>This removes your user account and unlinks saved jobs from your profile.</p></div>
+            <button id="deleteAccountBtn" class="ghost danger-button" type="button">Delete account</button>
+          </div>
+          <p id="settingsStatus" class="note"></p>
+        </section>
+        <section class="results-section glass-panel workspace-panel">
+          <div class="panel-heading">
+            <div><h2>Recent validations</h2><p>Saved reports from your logged-in workspace.</p></div>
+            <div class="history-tools">
+              <input id="historySearch" type="search" placeholder="Search reports">
+              <select id="historyFilter" aria-label="Filter reports">
+                <option value="all">All reports</option>
+                <option value="has-fabricated">Has fabricated risk</option>
+                <option value="all-clean">Mostly verified</option>
+              </select>
+            </div>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </section>
+      </main>
+    </div>
+    <script src="/site.js" type="module"></script>
+    <script src="/dashboard.js" type="module"></script>
+  </body>
+</html>

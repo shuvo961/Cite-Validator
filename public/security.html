@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Security - Cite Validator</title>
+    <meta name="description" content="Security notes for Cite Validator, including authentication, sessions, rate limiting, and production deployment guidance.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://sashuvo.com/security">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="ambient-page">
+      <header class="site-header product-nav">
+        <button class="mobile-menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">Menu</button>
+        <a class="brand" href="/"><img src="/logo.svg" alt="" class="brand-logo"><span>Cite Validator</span></a>
+        <nav class="site-nav"><a href="/validate">Validator</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/how-it-works">How it works</a></nav>
+        <div class="nav-actions"><button class="theme-toggle" type="button" data-theme-toggle>Dark</button><a class="login-link" data-auth-link href="/login">Login</a></div>
+      </header>
+      <main class="content-page">
+        <section class="page-hero compact-hero glass-panel">
+          <p class="eyebrow">Security</p>
+          <h1>Security Notes</h1>
+          <p>The MVP includes practical safeguards for local and public deployment, with clear production upgrade paths.</p>
+        </section>
+        <section class="legal-panel glass-panel">
+          <h2>Current safeguards</h2>
+          <p>The app uses HTTP-only sessions, password hashing for hidden owner/admin access, security headers, basic API rate limiting, hidden owner admin route, and admin-only monitoring endpoints.</p>
+          <h2>Google login</h2>
+          <p>Google OAuth is supported when `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `APP_BASE_URL` are configured.</p>
+          <h2>Production recommendations</h2>
+          <p>Use HTTPS, PostgreSQL, Redis-backed rate limiting/cache, automated backups, external monitoring, and a secure secret manager before high-traffic public launch.</p>
+        </section>
+      </main>
+    </div>
+    <script src="/site.js" type="module"></script>
+  </body>
+</html>

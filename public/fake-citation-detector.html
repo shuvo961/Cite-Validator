@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fake Citation Detector - Cite Validator</title>
+    <meta name="description" content="Detect fake citations, hallucinated references, unverifiable sources, DOI mismatches, and fabricated academic bibliography entries.">
+    <meta name="keywords" content="fake citation detector, hallucinated citation detector, fabricated reference checker, academic integrity citation checker">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://sashuvo.com/fake-citation-detector">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="ambient-page">
+      <header class="site-header product-nav">
+        <button class="mobile-menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">Menu</button>
+        <a class="brand" href="/"><img src="/logo.svg" alt="" class="brand-logo"><span>Cite Validator</span></a>
+        <nav class="site-nav">
+          <a href="/validate">Validator</a>
+          <a href="/doi-checker">DOI Checker</a>
+          <a href="/converter">Converter</a>
+          <a href="/how-it-works">How it works</a>
+        </nav>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+          <a class="login-link" data-auth-link href="/login">Login</a>
+        </div>
+      </header>
+
+      <main class="risk-page">
+        <section class="risk-hero">
+          <div>
+            <p class="eyebrow">Hallucination detector</p>
+            <h1>Investigate suspicious academic citations.</h1>
+            <p>Paste references that look fabricated. The detector prioritizes unverifiable papers, DOI-title mismatches, invented journals, and real authors attached to fake titles.</p>
+          </div>
+          <div class="risk-meter-preview">
+            <span>Risk scan</span>
+            <strong>0-100</strong>
+            <em>fabrication score</em>
+          </div>
+        </section>
+
+        <section class="risk-workspace">
+          <section class="risk-input-panel">
+            <div class="risk-panel-head">
+              <div>
+                <h2>Suspicious references</h2>
+                <p>Use this focused checker when you mainly want fabrication risk, not formatting.</p>
+              </div>
+              <img src="/icons/slider/alert.svg" alt="">
+            </div>
+            <textarea id="fakeInput" spellcheck="false" aria-label="References to check for hallucination" placeholder="Paste suspicious references here..."></textarea>
+            <div class="risk-actions">
+              <button id="fakeCheckBtn">Detect fake citations</button>
+              <button id="fakeSampleBtn" class="secondary">Load sample</button>
+              <a class="secondary-pill" href="/validate">Full validator</a>
+            </div>
+          </section>
+
+          <aside class="risk-signals-panel">
+            <h2>Risk signals</h2>
+            <div class="risk-signal"><b>01</b><span>No trusted metadata record</span></div>
+            <div class="risk-signal"><b>02</b><span>DOI belongs to another article</span></div>
+            <div class="risk-signal"><b>03</b><span>Author-title-year mismatch</span></div>
+            <div class="risk-signal"><b>04</b><span>Invented journal, volume, issue, or pages</span></div>
+          </aside>
+        </section>
+
+        <section class="risk-report-panel">
+          <div class="risk-report-head">
+            <div>
+              <h2>Fabrication risk report</h2>
+              <p>Status and risk appear first. Open dropdowns for evidence.</p>
+            </div>
+          </div>
+          <div id="fakeLoading" class="loading hidden">
+            <div class="loader-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>Checking hallucination risk...</span>
+          </div>
+          <div id="fakeEmpty" class="risk-empty-state">Paste references to check fabrication risk.</div>
+          <div id="fakeResults" class="results-list"></div>
+        </section>
+      </main>
+    </div>
+    <script src="/site.js" type="module"></script>
+    <script src="/fake-citation-detector.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Owner Login - Cite Validator</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="ambient-page">
+      <main class="content-page auth-page">
+        <section class="auth-shell owner-auth glass-panel">
+          <div class="auth-copy">
+            <p class="eyebrow">Owner access</p>
+            <h1>Cite Validator Admin</h1>
+            <p>This hidden page is reserved for the owner account: <strong>shovon961@gmail.com</strong>.</p>
+          </div>
+          <div class="auth-card">
+            <div class="auth-tabs" role="tablist" aria-label="Admin actions">
+              <button class="auth-tab active" data-owner-tab="login" type="button">Login</button>
+              <button class="auth-tab" data-owner-tab="reset" type="button">Reset</button>
+            </div>
+            <div id="ownerStatus" class="empty-state hidden"></div>
+            <form class="auth-form" id="ownerLoginForm" data-owner-panel="login">
+              <label>Admin email<input name="email" type="email" value="shovon961@gmail.com" required></label>
+              <label>Password<input name="password" type="password" autocomplete="current-password" required placeholder="Admin password"></label>
+              <button type="submit">Open admin panel</button>
+              <a class="google-button full-width" href="/auth/google">Login with Google</a>
+            </form>
+            <form class="auth-form hidden" id="ownerResetRequestForm" data-owner-panel="reset">
+              <label>Admin email<input name="email" type="email" value="shovon961@gmail.com" required></label>
+              <button type="submit">Create reset token</button>
+              <p class="note">In local development the reset token appears here. In production, configure email delivery before using public password resets.</p>
+            </form>
+            <form class="auth-form hidden" id="ownerResetForm">
+              <label>Reset token<input name="token" required placeholder="Paste reset token"></label>
+              <label>New password<input name="password" type="password" minlength="8" required placeholder="At least 8 characters"></label>
+              <button type="submit">Set admin password</button>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="/site.js" type="module"></script>
+    <script src="/owner-admin.js" type="module"></script>
+  </body>
+</html>

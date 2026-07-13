@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cite Validator - Free Citation Checker, Reference Validator & Hallucinated Citation Detector</title>
+    <meta name="description" content="Cite Validator is a free academic reference validation and citation checker for detecting fabricated citations, DOI mismatches, incomplete references, and hallucinated academic sources.">
+    <meta name="keywords" content="Cite Validator, reference validation, citation checker, academic citation checker, DOI checker, bibliography checker, reference checker, citation validation, hallucinated citations, fabricated references, APA citation checker, IEEE citation checker, MLA citation checker, Chicago citation checker, Vancouver citation checker, free citation checker">
+    <meta name="author" content="Sabbir Alom Shuvo">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Cite Validator - Free Reference Validation & Citation Checker">
+    <meta property="og:description" content="Validate academic references, detect hallucinated citations, compare DOI metadata, and export citation verification reports for free.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sashuvo.com">
+    <meta property="og:image" content="https://sashuvo.com/og-image.png">
+    <meta property="og:image:alt" content="Cite Validator free academic citation checker">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Cite Validator">
+    <meta name="twitter:description" content="A free reference validation and academic citation checker for researchers, students, editors, and publishers.">
+    <meta name="twitter:image" content="https://sashuvo.com/og-image.png">
+    <link rel="canonical" href="https://sashuvo.com">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Cite Validator",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "isAccessibleForFree": true,
+        "description": "Free academic reference validation and citation checker for detecting fabricated references, hallucinated citations, DOI mismatches, and incomplete bibliography entries.",
+        "creator": {
+          "@type": "Person",
+          "name": "Sabbir Alom Shuvo",
+          "url": "https://sashuvo.com"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Cite Validator free?",
+            "acceptedAnswer": {"@type": "Answer", "text": "Yes. Cite Validator is a totally free academic citation checker and reference validation tool."}
+          },
+          {
+            "@type": "Question",
+            "name": "Can Cite Validator detect fake citations?",
+            "acceptedAnswer": {"@type": "Answer", "text": "Cite Validator checks references against trusted metadata sources and flags unverifiable, suspicious, mismatched, or likely fabricated citations."}
+          },
+          {
+            "@type": "Question",
+            "name": "Does Cite Validator use Google Scholar scraping?",
+            "acceptedAnswer": {"@type": "Answer", "text": "No. The app prioritizes trusted metadata APIs such as Crossref, OpenAlex, PubMed, DataCite, DOI.org, arXiv, Google Books, and Open Library."}
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <div class="ambient-page">
+      <header class="site-header product-nav">
+        <button class="mobile-menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">Menu</button>
+        <a class="brand" href="/" aria-label="Cite Validator home">
+          <img src="/logo.svg" alt="" class="brand-logo">
+          <span>Cite Validator</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <div class="nav-menu">
+            <button class="nav-menu-button" type="button">Apps</button>
+            <div class="nav-menu-panel">
+              <a href="/validate">Citation Validator</a>
+              <a href="/converter">Citation Converter</a>
+              <a href="/doi-checker">DOI Checker</a>
+              <a href="/fake-citation-detector">Fake Citation Detector</a>
+            </div>
+          </div>
+          <a href="/pricing">Pricing</a>
+          <a href="/how-it-works">How it works</a>
+          <a href="/supported-formats">Formats</a>
+        </nav>
+        <div class="nav-actions">
+          <select class="language-select" aria-label="Language">
+            <option>English</option>
+            <option>Bengali</option>
+            <option>Arabic</option>
+            <option>Spanish</option>
+          </select>
+          <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+          <a class="login-link" data-auth-link href="/login">Login</a>
+        </div>
+      </header>
+
+      <main>
+        <section class="landing-hero product-hero">
+          <div class="hero-copy">
+            <p class="eyebrow">Totally free academic citation checker</p>
+            <h1>The free Citation Checker for Academia</h1>
+            <p class="hero-text">Run references through Cite Validator before submission, peer review, or publication. The app repairs messy PDF text, validates metadata, detects fabricated citations, and keeps uncertain evidence transparent.</p>
+            <div class="hero-stats" aria-label="Cite Validator capabilities">
+              <div><strong>Free</strong><span>full workspace</span></div>
+              <div><strong>10+</strong><span>metadata sources</span></div>
+              <div><strong>Auto</strong><span>style detection</span></div>
+              <div class="metric-logo-cell" aria-hidden="true"><img src="/academic-book-logo-small.png" alt=""></div>
+            </div>
+            <div class="audience-tags">
+              <span>Students</span>
+              <span>Researchers</span>
+              <span>Reviewers</span>
+              <span>Editors</span>
+              <span>Professors</span>
+            </div>
+            <form class="hero-search glass-panel" action="/validate" method="get">
+              <label for="homeQuery">Validate a reference</label>
+              <div class="search-row">
+                <input id="homeQuery" name="q" type="search" placeholder="Paste a citation, DOI, PMID, arXiv ID, ISBN, or title">
+                <button type="submit">Validate</button>
+              </div>
+            </form>
+            <div class="hero-actions">
+              <a class="primary-pill" href="/validate" data-i18n="try-validator">Try validator</a>
+              <a class="secondary-pill" href="/login">Login for full features</a>
+            </div>
+          </div>
+
+          <div class="hero-showcase result-showcase" aria-label="Animated citation validation preview">
+            <div class="validation-orb orb-one"></div>
+            <div class="validation-orb orb-two"></div>
+            <div class="live-demo-panel">
+              <div class="demo-toolbar">
+                <span></span><span></span><span></span>
+                <strong>Citation scan</strong>
+              </div>
+              <div class="demo-search">
+                <span class="scan-line"></span>
+                <p>Grimme and Schreiner, Computational Chemistry...</p>
+              </div>
+              <div class="demo-source-row">
+                <span>Crossref</span>
+                <span>OpenAlex</span>
+                <span>DOI.org</span>
+                <span>PubMed</span>
+              </div>
+              <div class="demo-result verified-row">
+                <span class="mini-status verified"></span>
+                <div>
+                  <strong>Verified</strong>
+                  <small>Title, authors, year, journal, pages, and DOI match.</small>
+                </div>
+                <b>96%</b>
+              </div>
+              <div class="demo-result partial-row">
+                <span class="mini-status partial"></span>
+                <div>
+                  <strong>Partial mismatch</strong>
+                  <small>Official metadata found, but year or pages need correction.</small>
+                </div>
+                <b>71%</b>
+              </div>
+              <div class="demo-result fabricated-row">
+                <span class="mini-status fabricated"></span>
+                <div>
+                  <strong>Likely fabricated</strong>
+                  <small>No trusted source confirms this reference.</small>
+                </div>
+                <b>8%</b>
+              </div>
+              <div class="demo-progress">
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="trust-strip">
+          <div class="trust-slider-heading">
+            <span>Built for students, researchers, reviewers, editors, librarians, and academic teams.</span>
+          </div>
+          <div class="trust-slider" aria-label="Cite Validator capabilities">
+            <div class="trust-track">
+              <span data-icon="verify"><strong>Reference validation</strong><em>Cross-check metadata</em></span>
+              <span data-icon="citation"><strong>Citation checker</strong><em>APA, IEEE, MLA, ACS</em></span>
+              <span data-icon="doi"><strong>DOI checker</strong><em>Repair and match DOI records</em></span>
+              <span data-icon="alert"><strong>Fake citation detector</strong><em>Flag suspicious sources</em></span>
+              <span data-icon="free"><strong>Free academic tool</strong><em>No paid gate for checks</em></span>
+              <span data-icon="style"><strong>Style auto-detection</strong><em>Detect format signals</em></span>
+              <span data-icon="evidence"><strong>Metadata evidence</strong><em>Trusted source trail</em></span>
+              <span data-icon="export"><strong>Exportable reports</strong><em>CSV, PDF, DOC, BibTeX</em></span>
+              <span data-icon="verify"><strong>Reference validation</strong><em>Cross-check metadata</em></span>
+              <span data-icon="citation"><strong>Citation checker</strong><em>APA, IEEE, MLA, ACS</em></span>
+              <span data-icon="doi"><strong>DOI checker</strong><em>Repair and match DOI records</em></span>
+              <span data-icon="alert"><strong>Fake citation detector</strong><em>Flag suspicious sources</em></span>
+              <span data-icon="free"><strong>Free academic tool</strong><em>No paid gate for checks</em></span>
+              <span data-icon="style"><strong>Style auto-detection</strong><em>Detect format signals</em></span>
+              <span data-icon="evidence"><strong>Metadata evidence</strong><em>Trusted source trail</em></span>
+              <span data-icon="export"><strong>Exportable reports</strong><em>CSV, PDF, DOC, BibTeX</em></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="source-network-section">
+          <h2 class="trusted-heading">Trusted Academic Sources <img src="/trusted-shield-logo-small.png" alt="" class="trusted-heading-mark"></h2>
+          <div class="source-network" aria-label="Metadata source network">
+            <div class="network-core"><img src="/logo.svg" alt=""><span>Cite Validator</span></div>
+            <div class="source-orbit orbit-a"><span class="source-node"><img src="/source-logos/crossref.png" alt=""><em>Crossref</em></span></div>
+            <div class="source-orbit orbit-b"><span class="source-node"><img src="/source-logos/doi.png" alt=""><em>DOI.org</em></span></div>
+            <div class="source-orbit orbit-c"><span class="source-node"><img src="/source-logos/openalex.png" alt=""><em>OpenAlex</em></span></div>
+            <div class="source-orbit orbit-d"><span class="source-node"><img src="/source-logos/pubmed.png" alt=""><em>PubMed</em></span></div>
+            <div class="source-orbit orbit-e"><span class="source-node"><img src="/source-logos/europepmc.png" alt=""><em>Europe PMC</em></span></div>
+            <div class="source-orbit orbit-f"><span class="source-node"><img src="/source-logos/arxiv.png" alt=""><em>arXiv</em></span></div>
+            <div class="source-orbit orbit-g"><span class="source-node"><img src="/source-logos/datacite.png" alt=""><em>DataCite</em></span></div>
+            <div class="source-orbit orbit-h"><span class="source-node"><img src="/source-logos/semantic-scholar.png" alt=""><em>Semantic Scholar</em></span></div>
+            <div class="source-orbit orbit-i"><span class="source-node"><img src="/source-logos/google-books.png" alt=""><em>Google Books</em></span></div>
+            <div class="source-orbit orbit-j"><span class="source-node"><img src="/source-logos/open-library.png" alt=""><em>Open Library</em></span></div>
+            <div class="source-orbit orbit-k"><span class="source-node"><img src="/source-logos/isbn.png" alt=""><em>ISBN</em></span></div>
+            <div class="source-orbit orbit-l"><span class="source-node"><img src="/source-logos/issn.png" alt=""><em>ISSN</em></span></div>
+          </div>
+          <p>Metadata is compared across trusted scholarly indexes and official identifier services. Low-confidence cases are flagged instead of guessed.</p>
+        </section>
+
+        <section class="content-band split-band">
+          <div>
+            <h2>What is Cite Validator?</h2>
+            <p>Cite Validator is a free citation verification tool and academic source checker. It helps detect hallucinated references, DOI-title mismatches, incomplete bibliography entries, suspicious journals, wrong years, and fabricated-looking citations.</p>
+          </div>
+          <div class="mini-browser">
+            <div class="browser-dots"><span></span><span></span><span></span></div>
+            <div class="browser-input">Paste your references...</div>
+            <p><span class="mini-status verified"></span> Verified citation <b>100%</b></p>
+            <p><span class="mini-status partial"></span> Partial mismatch <b>70%</b></p>
+            <p><span class="mini-status fabricated"></span> Likely fabricated <b>0%</b></p>
+          </div>
+        </section>
+
+        <section class="how-flow">
+          <h2>How Does Our Citation Verifier Work?</h2>
+          <div class="flow-steps">
+            <span>Enter text</span>
+            <span>Split citations</span>
+            <span>Repair PDF/OCR errors</span>
+            <span>Query databases</span>
+            <span>Analyze results</span>
+            <span>Generate report</span>
+          </div>
+          <p>Cite Validator uses built-in local parsing intelligence and retrieval algorithms to cross-check author names, titles, years, journal titles, DOIs, ISBNs, and pages against trusted metadata records.</p>
+        </section>
+
+        <section class="feature-grid use-case-grid">
+          <article class="glass-card"><span class="card-kicker">01</span><h2>Student submissions</h2><p>Check thesis and coursework bibliographies before submission.</p></article>
+          <article class="glass-card"><span class="card-kicker">02</span><h2>Research manuscripts</h2><p>Clean references and spot DOI mismatches before journal submission.</p></article>
+          <article class="glass-card"><span class="card-kicker">03</span><h2>Peer review</h2><p>Detect fake or unverifiable citations while reviewing manuscripts.</p></article>
+        </section>
+
+        <section class="importance-section">
+          <h2>Why Citation Verification Matters</h2>
+          <div class="reason-grid">
+            <article><span>01</span><p>AI-generated writing can include plausible but nonexistent citations.</p></article>
+            <article><span>02</span><p>Incorrect DOI metadata can point readers to the wrong paper.</p></article>
+            <article><span>03</span><p>Editors and reviewers need fast evidence, not confident guessing.</p></article>
+            <article><span>04</span><p>Researchers need clean, exportable reports for academic integrity.</p></article>
+          </div>
+        </section>
+
+        <section class="comparison-section">
+          <div class="section-heading">
+            <p class="eyebrow">Why not check manually?</p>
+            <h2>Cite Validator vs manual reference checking</h2>
+          </div>
+          <div class="comparison-grid">
+            <article>
+              <h3>Manual checking</h3>
+              <p>Slow, inconsistent, easy to miss DOI-title mismatches, and difficult for long bibliographies copied from PDFs.</p>
+              <ul><li>Search each source by hand</li><li>Copy metadata manually</li><li>No batch export</li></ul>
+            </article>
+            <article class="featured-comparison">
+              <h3>Cite Validator</h3>
+              <p>Splits messy references, repairs copied PDF text, checks trusted metadata sources, and explains uncertainty instead of guessing.</p>
+              <ul><li>Batch validation</li><li>Hallucination risk score</li><li>CSV, PDF, DOC, BibTeX, RIS</li></ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="testimonial-section">
+          <div class="section-heading">
+            <p class="eyebrow">Built for academic work</p>
+            <h2>Use cases across the research workflow</h2>
+          </div>
+          <div class="testimonial-grid">
+            <article><p>“I can paste a bibliography from a PDF and see which references need manual review before submission.”</p><strong>Graduate student</strong></article>
+            <article><p>“The brief result view helps me triage questionable citations without reading a huge report first.”</p><strong>Peer reviewer</strong></article>
+            <article><p>“Exportable reports make citation cleanup easier for editorial screening.”</p><strong>Journal editor</strong></article>
+          </div>
+        </section>
+
+        <section class="faq-section">
+          <div class="section-heading">
+            <p class="eyebrow">FAQ</p>
+            <h2>Reference validation questions</h2>
+          </div>
+          <div class="faq-grid">
+            <details open><summary>Can it handle references copied from PDFs?</summary><p>Yes. The validator includes local cleanup for line breaks, page-number runs, broken DOI URLs, and pasted-together references.</p></details>
+            <details><summary>Does it replace editorial judgment?</summary><p>No. Cite Validator flags risk and evidence. Uncertain references should still be manually verified.</p></details>
+            <details><summary>Which sources does it check?</summary><p>Crossref, OpenAlex, DOI.org, PubMed, Europe PMC, DataCite, arXiv, Semantic Scholar, Google Books, Open Library, ISBN, and ISSN signals.</p></details>
+            <details><summary>Can I export results?</summary><p>Yes. Reports can be exported as CSV, PDF, DOC, BibTeX, and RIS.</p></details>
+          </div>
+        </section>
+
+        <section class="guide-cta">
+          <div class="guide-cta-copy">
+            <p class="eyebrow">Help center</p>
+            <h2>Everything you need to know about using Cite Validator</h2>
+            <p>Learn how to paste messy references, interpret confidence scores, use citation conversion, and export clean reports without guessing.</p>
+          </div>
+          <div class="guide-cta-actions">
+            <a class="primary-pill" href="/how-it-works">Read guide</a>
+            <a class="secondary-pill" href="/supported-formats">Supported formats</a>
+            <a class="secondary-pill" href="/validate" data-i18n="try-validator">Try validator</a>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="/site.js" type="module"></script>
+  </body>
+</html>

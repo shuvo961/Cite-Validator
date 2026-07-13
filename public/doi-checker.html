@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Free DOI Checker - Cite Validator</title>
+    <meta name="description" content="Free DOI checker for validating DOI-title-author matches and detecting DOI mismatches in academic references.">
+    <meta name="keywords" content="DOI checker, DOI validator, DOI title mismatch, citation DOI checker, academic reference DOI">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://sashuvo.com/doi-checker">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="ambient-page">
+      <header class="site-header product-nav">
+        <button class="mobile-menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">Menu</button>
+        <a class="brand" href="/" aria-label="Cite Validator home">
+          <img src="/logo.svg" alt="" class="brand-logo"><span>Cite Validator</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="/validate">Validator</a>
+          <a href="/converter">Converter</a>
+          <a href="/supported-formats">Formats</a>
+          <a href="/pricing">Pricing</a>
+        </nav>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+          <a class="login-link" data-auth-link href="/login">Login</a>
+        </div>
+      </header>
+
+      <main class="doi-page">
+        <section class="doi-hero">
+          <div>
+            <p class="eyebrow">DOI checker</p>
+            <h1>Resolve a DOI and verify the article behind it.</h1>
+            <p>Paste a DOI, DOI URL, or a reference containing a DOI. The checker resolves official metadata and flags title, author, journal, or year mismatches.</p>
+          </div>
+          <div class="doi-hero-card" aria-label="DOI metadata sources">
+            <img src="/icons/slider/doi.svg" alt="">
+            <strong>DOI-first lookup</strong>
+            <span>DOI.org + Crossref + OpenAlex</span>
+          </div>
+        </section>
+
+        <section class="doi-workspace">
+          <section class="doi-lookup-card">
+            <div class="doi-card-top">
+              <span class="doi-orb"><img src="/icons/slider/doi.svg" alt=""></span>
+              <div>
+                <h2>Enter DOI</h2>
+                <p>Raw DOI, DOI URL, or copied DOI text all work.</p>
+              </div>
+            </div>
+            <div class="doi-input-shell">
+              <span>doi</span>
+              <input id="doiInput" spellcheck="false" aria-label="DOI or DOI URL" placeholder="10.1038/s41586-020-2649-2">
+              <button id="doiCheckBtn">Resolve</button>
+            </div>
+            <label class="doi-reference-note" for="doiContextInput">
+              <span>Optional claimed citation text</span>
+              <textarea id="doiContextInput" spellcheck="false" aria-label="Optional reference context" placeholder="Paste the full reference here only if you want title/author/year mismatch checking."></textarea>
+            </label>
+            <div class="doi-actions">
+              <button id="doiSampleBtn" class="secondary">Load sample</button>
+              <button id="doiClearBtn" class="secondary" type="button">Clear</button>
+              <a href="/validate">Need batch reference validation?</a>
+            </div>
+            <div class="doi-source-row" aria-label="DOI sources checked">
+              <span>DOI.org</span>
+              <span>Crossref</span>
+              <span>OpenAlex</span>
+              <span>Publisher URL</span>
+            </div>
+          </section>
+
+          <aside class="doi-steps-panel">
+            <h2>Lookup path</h2>
+            <div class="doi-step active"><b>01</b><span>Repair DOI text</span></div>
+            <div class="doi-step"><b>02</b><span>Resolve metadata</span></div>
+            <div class="doi-step"><b>03</b><span>Compare citation fields</span></div>
+            <div class="doi-step"><b>04</b><span>Return DOI verdict</span></div>
+          </aside>
+        </section>
+
+        <section class="doi-result-panel">
+          <div class="doi-result-head">
+            <div>
+              <p class="eyebrow">Result</p>
+              <h2>DOI verification</h2>
+            </div>
+            <span id="doiModeBadge">Ready</span>
+          </div>
+          <div id="doiLoading" class="loading hidden">
+            <div class="loader-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>Resolving DOI metadata...</span>
+          </div>
+          <div id="doiEmpty" class="doi-empty-state">
+            <img src="/icons/slider/doi.svg" alt="">
+            <strong>No DOI checked yet</strong>
+            <span>Enter a DOI above to see the source, confidence, risk, and corrected citation.</span>
+          </div>
+          <div id="doiResult" class="doi-results-list"></div>
+        </section>
+      </main>
+    </div>
+    <script src="/site.js" type="module"></script>
+    <script src="/doi-checker.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Cite Validator logo</title>
+  <desc id="desc">A scholarly seal with an open book, citation mark, and verified check.</desc>
+  <defs>
+    <linearGradient id="seal" x1="28" y1="18" x2="136" y2="146" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B2F3A"/>
+      <stop offset="1" stop-color="#13233A"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="42" y1="43" x2="118" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFDF5"/>
+      <stop offset="1" stop-color="#EAF3F1"/>
+    </linearGradient>
+  </defs>
+  <rect x="14" y="14" width="132" height="132" rx="36" fill="url(#seal)"/>
+  <rect x="22" y="22" width="116" height="116" rx="30" stroke="#D8B56D" stroke-opacity=".5" stroke-width="3"/>
+  <path d="M41 47c0-5 4-9 9-9h24c8 0 14 6 14 14v68c-4-4-10-7-17-7H50c-5 0-9-4-9-9V47Z" fill="url(#paper)"/>
+  <path d="M88 52c0-8 6-14 14-14h8c5 0 9 4 9 9v57c0 5-4 9-9 9H98c-4 0-8 1-10 4V52Z" fill="#F8FBFA"/>
+  <path d="M88 51v67" stroke="#47636B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M54 58h22M54 72h20M54 86h23M100 58h10M100 72h12M100 86h9" stroke="#5E7379" stroke-width="4" stroke-linecap="round"/>
+  <path d="M55 104c3-8 12-8 15 0M101 104c2-8 11-8 14 0" stroke="#B8893A" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="103" cy="104" r="25" fill="#F8FBFA" stroke="#0B2F3A" stroke-width="5"/>
+  <path d="M91 104l9 9 18-22" stroke="#0E9F6E" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M43 126h74" stroke="#D8B56D" stroke-width="5" stroke-linecap="round"/>
+</svg>

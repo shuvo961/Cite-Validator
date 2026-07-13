@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Cite Validator preview</title>
+  <desc id="desc">Free academic citation checker and hallucinated reference detector.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset="0.55" stop-color="#eef5ff"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#0f172a" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="140" cy="120" r="160" fill="#3558f6" opacity="0.12"/>
+  <circle cx="1030" cy="130" r="190" fill="#0e9f6e" opacity="0.12"/>
+  <circle cx="930" cy="550" r="170" fill="#e55f72" opacity="0.09"/>
+  <g filter="url(#shadow)">
+    <rect x="82" y="74" width="1036" height="482" rx="36" fill="#fff" opacity="0.86"/>
+    <rect x="82" y="74" width="1036" height="482" rx="36" fill="none" stroke="#d9e2ee"/>
+  </g>
+  <g transform="translate(134 124)">
+    <rect width="76" height="76" rx="18" fill="#113f49"/>
+    <path d="M22 20h17c5 0 9 4 9 9v31H30c-5 0-8-3-8-8z" fill="#fff" opacity="0.95"/>
+    <path d="M48 20h8c5 0 9 4 9 9v31H48z" fill="#fff" opacity="0.82"/>
+    <path d="M30 31h12M30 42h12M53 31h6M53 42h6" stroke="#0e9f6e" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="57" cy="55" r="12" fill="#f8fafc" stroke="#b88724" stroke-width="3"/>
+    <path d="m63 62 9 9" stroke="#b88724" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="232" y="154" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#07111f">Cite Validator</text>
+  <text x="134" y="258" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="900" fill="#07111f">Free Citation Checker</text>
+  <text x="134" y="328" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#3558f6">Detect hallucinated and fabricated references</text>
+  <text x="134" y="392" font-family="Inter, Arial, sans-serif" font-size="24" fill="#475569">Validate DOI, title, authors, journal, year, pages, ISBN, PMID, arXiv, and more.</text>
+  <g transform="translate(134 444)" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800">
+    <rect width="144" height="48" rx="24" fill="#e8f8f1"/><text x="28" y="31" fill="#0e9f6e">Verified</text>
+    <rect x="164" width="188" height="48" rx="24" fill="#fff7ed"/><text x="190" y="31" fill="#d97706">Needs review</text>
+    <rect x="372" width="174" height="48" rx="24" fill="#fef2f2"/><text x="400" y="31" fill="#dc2626">Suspicious</text>
+  </g>
+  <g transform="translate(820 214)">
+    <rect width="214" height="56" rx="16" fill="#f8fafc" stroke="#d9e2ee"/>
+    <circle cx="31" cy="28" r="10" fill="#0e9f6e"/><text x="56" y="36" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800" fill="#07111f">Crossref</text>
+    <rect y="76" width="214" height="56" rx="16" fill="#f8fafc" stroke="#d9e2ee"/>
+    <circle cx="31" cy="104" r="10" fill="#3558f6"/><text x="56" y="112" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800" fill="#07111f">OpenAlex</text>
+    <rect y="152" width="214" height="56" rx="16" fill="#f8fafc" stroke="#d9e2ee"/>
+    <circle cx="31" cy="180" r="10" fill="#b88724"/><text x="56" y="188" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800" fill="#07111f">DOI.org</text>
+  </g>
+</svg>

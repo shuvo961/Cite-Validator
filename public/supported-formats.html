@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Supported Citation Formats - Cite Validator</title>
+    <meta name="description" content="Supported formats for Cite Validator include APA, IEEE, MLA, Chicago, Vancouver, DOI, PMID, arXiv, ISBN, BibTeX, RIS, numbered references, and messy PDF/OCR text.">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="ambient-page">
+      <header class="site-header product-nav">
+        <button class="mobile-menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">Menu</button>
+        <a class="brand" href="/" aria-label="Cite Validator home"><img src="/logo.svg" alt="" class="brand-logo"><span>Cite Validator</span></a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="/validate">Validator</a>
+          <a href="/converter">Converter</a>
+          <a href="/how-it-works">How it works</a>
+          <a href="/pricing">Pricing</a>
+        </nav>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" data-theme-toggle>Dark</button>
+          <a class="login-link" data-auth-link href="/login">Login</a>
+        </div>
+      </header>
+      <main class="content-page">
+        <section class="page-hero glass-panel formats-hero">
+          <p class="eyebrow">Supported formats</p>
+          <h1>Paste almost any bibliography text</h1>
+          <p>Cite Validator supports common styles, identifier-only lists, and messy copied references from PDFs. The app detects citation style automatically when possible and shows a split preview before validation.</p>
+          <div class="hero-actions">
+            <a class="primary-pill" href="/validate">Try a pasted list</a>
+            <a class="secondary-pill" href="/doi-checker">Check a DOI</a>
+          </div>
+        </section>
+
+        <section class="format-support-grid">
+          <article class="format-panel glass-panel">
+            <span class="format-icon">Aa</span>
+            <h2>Academic styles</h2>
+            <p>APA, IEEE, MLA, Chicago, Vancouver, ACS, Harvard, numbered styles, and journal-specific references.</p>
+          </article>
+          <article class="format-panel glass-panel">
+            <span class="format-icon">ID</span>
+            <h2>Identifiers</h2>
+            <p>DOI, ISBN, ISSN, PMID, PMCID, arXiv ID, URLs, publisher landing pages, and book metadata.</p>
+          </article>
+          <article class="format-panel glass-panel">
+            <span class="format-icon">TXT</span>
+            <h2>Imports</h2>
+            <p>Plain text, copied bibliography sections, BibTeX, RIS, CSV-style lists, and DOI-only batches.</p>
+          </article>
+          <article class="format-panel glass-panel">
+            <span class="format-icon">PDF</span>
+            <h2>Messy PDF text</h2>
+            <p>Broken lines, page numbers, hyphenation, DOI URLs split across lines, and pasted-together references.</p>
+          </article>
+        </section>
+
+        <section class="example-lab glass-panel">
+          <div>
+            <p class="eyebrow">Input examples</p>
+            <h2>Designed for real copied references</h2>
+            <p>The parser handles clean references and rough text copied from two-column PDFs. You can still manually split or merge before validation if the source text is unusually damaged.</p>
+          </div>
+          <div class="sample-stack">
+            <pre>Smith, J. A. (2024). Reference validation in scholarly writing. Journal of Academic Metadata, 12(2), 101-118. https://doi.org/10.0000/example</pre>
+            <pre>[7] R. Chen and M. Patel, "Citation integrity at scale," Proc. Digital Libraries Conf., 2023, pp. 44-52.</pre>
+            <pre>10.1038/s41586-020-2649-2
+10.1126/science.aav4687
+arXiv:1706.03762</pre>
+          </div>
+        </section>
+
+        <section class="cleanup-steps">
+          <article><strong>1</strong><span>Clean PDF text</span><p>Remove page-number runs, repair line breaks, and normalize DOI spacing.</p></article>
+          <article><strong>2</strong><span>Split references</span><p>Detect numbered lists, author-year boundaries, and identifier-delimited references.</p></article>
+          <article><strong>3</strong><span>Validate metadata</span><p>Query trusted sources and show compact results with optional depth reports.</p></article>
+        </section>
+      </main>
+    </div>
+    <script src="/site.js" type="module"></script>
+  </body>
+</html>

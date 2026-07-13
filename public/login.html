@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Cite Validator</title>
+    <meta name="description" content="Login with Google to access Cite Validator dashboard, saved reports, citation validation, exports, and converter tools.">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="ambient-page">
+      <header class="site-header product-nav">
+        <a class="brand" href="/"><img src="/logo.svg" alt="" class="brand-logo"><span>Cite Validator</span></a>
+        <nav class="site-nav"><a href="/pricing">Pricing</a><a href="/how-it-works">How it works</a><a href="/supported-formats">Formats</a></nav>
+        <a class="login-link" href="/validate">Try validator</a>
+      </header>
+      <main class="content-page auth-page">
+        <section class="auth-shell public-auth glass-panel">
+          <div class="auth-copy">
+            <div class="auth-brand-lockup">
+              <img src="/login-academic-mark.png" alt="" class="auth-academic-mark">
+              <div>
+                <p class="eyebrow">Full free workspace</p>
+                <h1>Login to Cite Validator</h1>
+              </div>
+            </div>
+            <p>Use Google login to access your free citation validation workspace, saved reports, exports, and converter tools.</p>
+            <div class="auth-benefits">
+              <span>Saved reports</span>
+              <span>One-click exports</span>
+              <span>Totally free</span>
+            </div>
+            <div class="auth-proof-panel">
+              <div><strong>Free</strong><span>No subscription required.</span></div>
+              <div><strong>Transparent</strong><span>Evidence-first citation checks.</span></div>
+              <div><strong>Academic</strong><span>Built for references, DOIs, and scholarly metadata.</span></div>
+            </div>
+          </div>
+          <div class="auth-card google-only-card">
+            <div class="login-card-top">
+              <img src="/logo.svg" alt="" class="login-mark">
+              <span>Secure sign in</span>
+            </div>
+            <h2>Continue securely</h2>
+            <p>Sign in with Google to open your dashboard.</p>
+            <div id="loginError" class="empty-state hidden"></div>
+            <a class="google-button full-width" href="/auth/google"><img src="/google-g.svg" alt="">Continue with Google</a>
+            <small class="auth-note">Your account is used only for reports, exports, and dashboard access.</small>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="/site.js" type="module"></script>
+    <script src="/login.js" type="module"></script>
+  </body>
+</html>

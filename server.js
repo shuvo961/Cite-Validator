@@ -135,6 +135,7 @@ const cleanRouteMap = new Map([
   ["/reports", "/dashboard.html"],
   ["/history", "/dashboard.html"],
   ["/settings", "/dashboard.html"],
+  ["/admin", "/admin.html"],
   ["/ownershuvo", "/shuvo-admin.html"],
   ["/apa-citation-checker", "/validate.html"],
   ["/mla-citation-checker", "/validate.html"],

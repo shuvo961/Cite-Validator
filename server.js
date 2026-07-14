@@ -6,26 +6,43 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   auditLog,
+  assignJobFolder,
+  clearUserHistory,
+  createProjectFolder,
+  createShareLink,
   createPasswordReset,
   createPasswordUser,
   createSession,
   deleteSession,
   deleteUserAccount,
   getAdminStats,
+  getAdminControlSettings,
   getMetadataCacheStats,
   getJob,
+  getReportNote,
+  getShareByToken,
   getSourceHealth,
   getSetting,
+  getUploadRecord,
   getUserBySession,
   initDb,
+  listAuditLogs,
   listFeedback,
   listUserJobs,
+  listWorkspaceData,
   listUsers,
   resetPasswordWithToken,
+  revokeShareLink,
   saveFeedback,
+  saveExportPreset,
   saveJob,
+  saveReportNote,
+  saveUploadRecord,
   setSetting,
+  setUserPreference,
   setUserPassword,
+  setUserStatus,
+  updateFeedbackStatus,
   upsertUser,
   verifyPasswordUser
 } from "./src/db.js";
@@ -136,6 +153,7 @@ const cleanRouteMap = new Map([
   ["/history", "/dashboard.html"],
   ["/settings", "/dashboard.html"],
   ["/admin", "/admin.html"],
+  ["/shared", "/report.html"],
   ["/ownershuvo", "/shuvo-admin.html"],
   ["/apa-citation-checker", "/validate.html"],
   ["/mla-citation-checker", "/validate.html"],
@@ -376,6 +394,17 @@ function productionReadiness(req) {
     cache: process.env.REDIS_URL ? "redis-configured" : "sqlite-metadata-cache",
     checks
   };
+}
+
+function activeProviderControls() {
+  return getAdminControlSettings().providers || {};
+}
+
+function activeLimit(key, fallback) {
+  const controls = getAdminControlSettings();
+  const raw = controls.limits?.[key] || "";
+  const value = Number(raw);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
 function checkItem(name, ok, message) {
@@ -686,6 +715,14 @@ function redirect(res, location) {
   res.end();
 }
 
+function safeDownloadName(name) {
+  return String(name || "download.txt").replace(/[^a-z0-9._-]+/gi, "-").replace(/^-+|-+$/g, "") || "download.txt";
+}
+
+function csvEscape(value) {
+  return `"${String(value ?? "").replace(/"/g, '""')}"`;
+}
+
 function safeAuthReturnPath(value) {
   const raw = String(value || "").trim();
   const allowed = new Set(["/ownershuvo", "/dashboard", "/dashboard.html", "/validate", "/converter", "/doi-checker", "/fake-citation-detector"]);
@@ -699,6 +736,12 @@ function requireUser(req, res) {
     sendJson(res, 401, { error: "Login required" });
     return null;
   }
+  if (user.status === "suspended") {
+    clearSessionCookie(res);
+    auditLog({ userId: user.id, action: "suspended_access_blocked" });
+    sendJson(res, 403, { error: "This account is suspended. Contact the site owner if this is unexpected." });
+    return null;
+  }
   return user;
 }
 
@@ -710,6 +753,73 @@ function requireAdmin(req, res) {
     return null;
   }
   return user;
+}
+
+function blockSuspendedLogin(user, res) {
+  if (user?.status !== "suspended") return false;
+  clearSessionCookie(res);
+  sendJson(res, 403, { error: "This account is suspended. Contact the site owner if this is unexpected." });
+  return true;
+}
+
+function requirePrivatePageAccess(req, res, pathname) {
+  const normalized = pathname.replace(/\.html$/, "");
+  const userRoutes = new Set(["/dashboard", "/settings", "/reports"]);
+  const adminRoutes = new Set(["/admin", "/admin.html"]);
+  const isReportRoute = /^\/reports\/[^/]+$/.test(pathname);
+  const isSharedRoute = /^\/shared\/[^/]+$/.test(pathname);
+  if (isSharedRoute) {
+    const token = pathname.split("/").pop();
+    if (getShareByToken(token)) return true;
+    sendJson(res, 404, { error: "Shared report not found or expired." });
+    return false;
+  }
+  if (!userRoutes.has(normalized) && !adminRoutes.has(pathname) && !isReportRoute) return true;
+
+  const user = getCurrentUser(req);
+  if (!user) {
+    redirect(res, `/login?returnTo=${encodeURIComponent(pathname)}`);
+    return false;
+  }
+  if (user.status === "suspended") {
+    clearSessionCookie(res);
+    redirect(res, "/login?error=suspended");
+    return false;
+  }
+  if (adminRoutes.has(pathname) && user.role !== "admin") {
+    redirect(res, "/dashboard");
+    return false;
+  }
+  return true;
+}
+
+function requireAuthorizedJob(req, res, id) {
+  const user = requireUser(req, res);
+  if (!user) return null;
+  const job = getJob(id);
+  if (!job) {
+    sendJson(res, 404, { error: "Job not found" });
+    return null;
+  }
+  if (job.userId && job.userId !== user.id && user.role !== "admin") {
+    sendJson(res, 403, { error: "You do not have access to this report." });
+    return null;
+  }
+  return job;
+}
+
+function getSharedJob(req, res, token) {
+  const share = getShareByToken(token);
+  if (!share) {
+    sendJson(res, 404, { error: "Shared report not found or expired." });
+    return null;
+  }
+  const job = getJob(share.job_id);
+  if (!job) {
+    sendJson(res, 404, { error: "Report not found." });
+    return null;
+  }
+  return { job, share };
 }
 
 async function handleStatic(req, res) {
@@ -743,9 +853,10 @@ async function handleStatic(req, res) {
   }
   const requested = url.pathname === "/"
     ? "/index.html"
-    : /^\/reports\/[^/]+$/.test(url.pathname)
+    : /^\/reports\/[^/]+$/.test(url.pathname) || /^\/shared\/[^/]+$/.test(url.pathname)
       ? "/report.html"
       : cleanRouteMap.get(url.pathname) || url.pathname;
+  if (!requirePrivatePageAccess(req, res, url.pathname)) return;
   const safePath = path.normalize(decodeURIComponent(requested)).replace(/^(\.\.[/\\])+/, "");
   const filePath = path.join(publicDir, safePath);
 
@@ -794,14 +905,27 @@ async function handleApi(req, res) {
 
   if (req.method === "GET" && url.pathname === "/api/me") {
     const user = getCurrentUser(req);
+    if (user?.status === "suspended") {
+      clearSessionCookie(res);
+      sendJson(res, 403, { user: null, authenticated: false, error: "Account suspended" });
+      return;
+    }
     sendJson(res, 200, { user, authenticated: Boolean(user) });
     return;
   }
 
   if (req.method === "GET" && url.pathname === "/api/announcement") {
+    const enabled = getSetting("announcement_enabled", "false") === "true";
+    const startsAt = getSetting("announcement_starts_at", "");
+    const endsAt = getSetting("announcement_ends_at", "");
+    const now = Date.now();
+    const inWindow = (!startsAt || Date.parse(startsAt) <= now) && (!endsAt || Date.parse(endsAt) >= now);
     sendJson(res, 200, {
       message: getSetting("announcement_message", ""),
-      enabled: getSetting("announcement_enabled", "false") === "true"
+      severity: getSetting("announcement_severity", "info"),
+      startsAt,
+      endsAt,
+      enabled: enabled && inWindow
     });
     return;
   }
@@ -817,6 +941,7 @@ async function handleApi(req, res) {
       email,
       avatarUrl: "/logo.svg"
     });
+    if (blockSuspendedLogin(user, res)) return;
     const session = createSession(user.id);
     setSessionCookie(res, session);
     auditLog({ userId: user.id, action: "demo_login" });
@@ -854,6 +979,7 @@ async function handleApi(req, res) {
       sendJson(res, 401, { error: "Invalid email or password." });
       return;
     }
+    if (blockSuspendedLogin(user, res)) return;
     const session = createSession(user.id);
     setSessionCookie(res, session);
     auditLog({ userId: user.id, action: "password_login" });
@@ -918,10 +1044,182 @@ async function handleApi(req, res) {
     return;
   }
 
+  if (req.method === "POST" && url.pathname === "/api/account/password") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    const password = String(body.password || "");
+    if (password.length < 8) {
+      sendJson(res, 400, { error: "Password must be at least 8 characters." });
+      return;
+    }
+    const updated = setUserPassword({ email: user.email, password });
+    auditLog({ userId: user.id, action: "account_password_updated" });
+    sendJson(res, 200, { user: updated });
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/history") {
     const user = requireUser(req, res);
     if (!user) return;
     sendJson(res, 200, { jobs: listUserJobs(user.id) });
+    return;
+  }
+
+  if (req.method === "DELETE" && url.pathname === "/api/history") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const deleted = clearUserHistory(user.id);
+    auditLog({ userId: user.id, action: "history_cleared", detail: { deleted } });
+    sendJson(res, 200, { ok: true, deleted });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/workspace") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const jobs = listUserJobs(user.id, 200);
+    sendJson(res, 200, {
+      workspace: listWorkspaceData(user.id),
+      usage: buildUsageSummary(jobs),
+      repairQueue: buildRepairQueue(user.id, jobs),
+      sourceTimeline: buildSourceTimeline(user.id, jobs),
+      notifications: buildNotifications(jobs)
+    });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/workspace/folders") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    const folder = createProjectFolder({ userId: user.id, name: body.name, description: body.description });
+    auditLog({ userId: user.id, action: "project_folder_created", detail: { folderId: folder.id } });
+    sendJson(res, 200, { folder });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/workspace/notes") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    const job = requireAuthorizedJob(req, res, String(body.jobId || ""));
+    if (!job) return;
+    const note = saveReportNote({ userId: user.id, jobId: job.id, note: body.note });
+    auditLog({ userId: user.id, action: "report_note_saved", detail: { jobId: job.id } });
+    sendJson(res, 200, { note });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/workspace/assign-folder") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    try {
+      const assignment = assignJobFolder({ userId: user.id, jobId: String(body.jobId || ""), folderId: String(body.folderId || "") });
+      auditLog({ userId: user.id, action: "report_folder_assigned", detail: assignment });
+      sendJson(res, 200, { assignment });
+    } catch (error) {
+      sendJson(res, 400, { error: error.message });
+    }
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/workspace/share-links") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    const job = requireAuthorizedJob(req, res, String(body.jobId || ""));
+    if (!job) return;
+    const share = createShareLink({ userId: user.id, jobId: job.id, expiresDays: body.expiresDays });
+    auditLog({ userId: user.id, action: "share_link_created", detail: { jobId: job.id } });
+    sendJson(res, 200, { share, url: `${getPublicBaseUrl(req)}/shared/${share.token}` });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/workspace/share-links/revoke") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    try {
+      const share = revokeShareLink({ userId: user.id, shareId: String(body.shareId || "") });
+      auditLog({ userId: user.id, action: "share_link_revoked", detail: { shareId: share.id } });
+      sendJson(res, 200, { share });
+    } catch (error) {
+      sendJson(res, 404, { error: error.message });
+    }
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/workspace/uploads") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    const upload = saveUploadRecord({ userId: user.id, name: body.name, type: body.type, size: body.size, contentText: body.contentText });
+    auditLog({ userId: user.id, action: "upload_record_saved", detail: { uploadId: upload.id } });
+    sendJson(res, 200, { upload });
+    return;
+  }
+
+  const uploadDownloadMatch = url.pathname.match(/^\/api\/workspace\/uploads\/([^/]+)\/download$/);
+  if (req.method === "GET" && uploadDownloadMatch) {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const upload = getUploadRecord({ userId: user.id, uploadId: uploadDownloadMatch[1] });
+    if (!upload) {
+      sendJson(res, 404, { error: "Upload not found." });
+      return;
+    }
+    res.writeHead(200, {
+      "content-type": `${upload.type || "text/plain"}; charset=utf-8`,
+      "content-disposition": `attachment; filename="${safeDownloadName(upload.name || "upload.txt")}"`
+    });
+    res.end(upload.content_text || "");
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/workspace/presets") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    const preset = saveExportPreset({ userId: user.id, name: body.name, style: body.style, formats: body.formats });
+    sendJson(res, 200, { preset });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/workspace/preferences") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    const saved = Object.entries(body || {}).map(([key, value]) => setUserPreference({ userId: user.id, key, value }));
+    sendJson(res, 200, { preferences: saved });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/workspace/compare") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    const before = requireAuthorizedJob(req, res, String(body.beforeJobId || ""));
+    if (!before) return;
+    const after = requireAuthorizedJob(req, res, String(body.afterJobId || ""));
+    if (!after) return;
+    sendJson(res, 200, { comparison: compareJobs(before, after) });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/workspace/bibliography") {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const body = await readJson(req);
+    const ids = Array.isArray(body.jobIds) ? body.jobIds : [];
+    const lines = [];
+    for (const id of ids.slice(0, 50)) {
+      const job = requireAuthorizedJob(req, res, String(id));
+      if (!job) return;
+      lines.push(...job.results.map((result) => result.correctedReference || result.originalReference).filter(Boolean));
+    }
+    sendJson(res, 200, { bibliography: [...new Set(lines)].join("\n\n") });
     return;
   }
 
@@ -946,8 +1244,120 @@ async function handleApi(req, res) {
       stats: getAdminStats(),
       users: listUsers(25),
       sourceHealth: getSourceHealth(),
-      feedback: listFeedback(20)
+      feedback: listFeedback(20),
+      auditLogs: listAuditLogs(25),
+      controls: getAdminControlSettings(),
+      moderation: buildModerationSummary(),
+      announcement: {
+        message: getSetting("announcement_message", ""),
+        enabled: getSetting("announcement_enabled", "false") === "true",
+        severity: getSetting("announcement_severity", "info"),
+        startsAt: getSetting("announcement_starts_at", ""),
+        endsAt: getSetting("announcement_ends_at", "")
+      },
+      errors: runtimeMetrics.recent.filter((item) => item.status >= 400).slice(0, 25)
     });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/admin/user-status") {
+    const admin = requireAdmin(req, res);
+    if (!admin) return;
+    const body = await readJson(req);
+    const user = setUserStatus({ userId: String(body.userId || ""), status: String(body.status || "active") });
+    auditLog({ userId: admin.id, action: "admin_user_status", detail: { userId: body.userId, status: body.status } });
+    sendJson(res, user ? 200 : 404, user ? { user } : { error: "User not found" });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/admin/provider-controls") {
+    const admin = requireAdmin(req, res);
+    if (!admin) return;
+    const body = await readJson(req);
+    for (const [key, value] of Object.entries(body || {})) {
+      setSetting(`provider_${key}`, value === false ? "false" : "true");
+    }
+    auditLog({ userId: admin.id, action: "admin_provider_controls", detail: body });
+    sendJson(res, 200, { controls: getAdminControlSettings() });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/admin/rate-limits") {
+    const admin = requireAdmin(req, res);
+    if (!admin) return;
+    const body = await readJson(req);
+    for (const [key, value] of Object.entries(body || {})) {
+      setSetting(`limit_${key}`, String(value || ""));
+    }
+    auditLog({ userId: admin.id, action: "admin_rate_limits", detail: body });
+    sendJson(res, 200, { controls: getAdminControlSettings() });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/admin/feedback-status") {
+    const admin = requireAdmin(req, res);
+    if (!admin) return;
+    const body = await readJson(req);
+    const feedback = updateFeedbackStatus({ id: String(body.id || ""), status: String(body.status || "open") });
+    auditLog({ userId: admin.id, action: "admin_feedback_status", detail: feedback });
+    sendJson(res, 200, { feedback });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/admin/export.csv") {
+    const admin = requireAdmin(req, res);
+    if (!admin) return;
+    const rows = listUsers(1000);
+    const csv = ["email,name,role,status,jobCount,referencesChecked", ...rows.map((user) => [
+      user.email,
+      user.name,
+      user.role,
+      user.status,
+      user.jobCount,
+      user.referencesChecked
+    ].map(csvEscape).join(","))].join("\n");
+    res.writeHead(200, {
+      "content-type": "text/csv; charset=utf-8",
+      "content-disposition": "attachment; filename=\"cite-validator-admin-users.csv\""
+    });
+    res.end(csv);
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/admin/audit.csv") {
+    const admin = requireAdmin(req, res);
+    if (!admin) return;
+    const rows = listAuditLogs(1000);
+    const csv = ["createdAt,email,action,detail", ...rows.map((item) => [
+      item.created_at,
+      item.email || "system",
+      item.action,
+      item.detail_json || ""
+    ].map(csvEscape).join(","))].join("\n");
+    res.writeHead(200, {
+      "content-type": "text/csv; charset=utf-8",
+      "content-disposition": "attachment; filename=\"cite-validator-audit-logs.csv\""
+    });
+    res.end(csv);
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/admin/feedback.csv") {
+    const admin = requireAdmin(req, res);
+    if (!admin) return;
+    const rows = listFeedback(1000);
+    const csv = ["createdAt,email,type,status,message", ...rows.map((item) => [
+      item.created_at,
+      item.email || "anonymous",
+      item.type,
+      item.status,
+      item.message
+    ].map(csvEscape).join(","))].join("\n");
+    res.writeHead(200, {
+      "content-type": "text/csv; charset=utf-8",
+      "content-disposition": "attachment; filename=\"cite-validator-feedback.csv\""
+    });
+    res.end(csv);
     return;
   }
 
@@ -1000,15 +1410,21 @@ async function handleApi(req, res) {
     const body = await readJson(req);
     const message = String(body.message || "").slice(0, 240);
     const enabled = Boolean(body.enabled);
+    const severity = ["info", "success", "warning", "critical"].includes(String(body.severity)) ? String(body.severity) : "info";
+    const startsAt = String(body.startsAt || "").slice(0, 40);
+    const endsAt = String(body.endsAt || "").slice(0, 40);
     setSetting("announcement_message", message);
     setSetting("announcement_enabled", enabled ? "true" : "false");
-    auditLog({ userId: admin.id, action: "admin_update_announcement", detail: { enabled } });
-    sendJson(res, 200, { ok: true, message, enabled });
+    setSetting("announcement_severity", severity);
+    setSetting("announcement_starts_at", startsAt);
+    setSetting("announcement_ends_at", endsAt);
+    auditLog({ userId: admin.id, action: "admin_update_announcement", detail: { enabled, severity } });
+    sendJson(res, 200, { ok: true, message, enabled, severity, startsAt, endsAt });
     return;
   }
 
   if (req.method === "POST" && url.pathname === "/api/validate") {
-    if (!rateLimit(req, res, { limit: 20, windowMs: 60_000 })) return;
+    if (!rateLimit(req, res, { limit: activeLimit("perMinute", 20), windowMs: 60_000 })) return;
     const body = await readJson(req);
     const referencesText = String(body.referencesText || "").trim();
     const style = String(body.style || "apa").toLowerCase();
@@ -1023,12 +1439,13 @@ async function handleApi(req, res) {
 
     const user = getCurrentUser(req);
     const detectedReferences = splitReferences(referencesText).filter(Boolean);
-    if (detectedReferences.length > syncValidationLimit) {
+    const currentSyncLimit = activeLimit("syncValidationLimit", syncValidationLimit);
+    if (detectedReferences.length > currentSyncLimit) {
       const queuedJob = queueValidationJob({ referencesText, style, userId: user?.id || "" });
       sendJson(res, 202, queuedJob);
       return;
     }
-    const job = await validateReferences({ referencesText, style });
+    const job = await validateReferences({ referencesText, style, enabledProviders: activeProviderControls() });
     job.userId = user?.id || "";
     saveJob(job);
     sendJson(res, 200, job);
@@ -1066,7 +1483,7 @@ async function handleApi(req, res) {
   }
 
   if (req.method === "POST" && url.pathname === "/api/convert") {
-    if (!rateLimit(req, res, { limit: 20, windowMs: 60_000 })) return;
+    if (!rateLimit(req, res, { limit: activeLimit("perMinute", 20), windowMs: 60_000 })) return;
     const body = await readJson(req);
     const referencesText = String(body.referencesText || "").trim();
     const style = String(body.style || "apa").toLowerCase();
@@ -1075,7 +1492,7 @@ async function handleApi(req, res) {
       return;
     }
     const user = getCurrentUser(req);
-    const job = await validateReferences({ referencesText, style });
+    const job = await validateReferences({ referencesText, style, enabledProviders: activeProviderControls() });
     job.userId = user?.id || "";
     saveJob(job);
     sendJson(res, 200, {
@@ -1099,25 +1516,34 @@ async function handleApi(req, res) {
   if (req.method === "GET" && jobMatch) {
     const queued = asyncValidationJobs.get(jobMatch[1]);
     if (queued) {
+      const user = requireUser(req, res);
+      if (!user) return;
+      if (queued.userId && queued.userId !== user.id && user.role !== "admin") {
+        sendJson(res, 403, { error: "You do not have access to this report." });
+        return;
+      }
       sendJson(res, queued.status === "failed" ? 500 : 200, queued);
       return;
     }
-    const job = getJob(jobMatch[1]);
-    if (!job) {
-      sendJson(res, 404, { error: "Job not found" });
-      return;
-    }
-    sendJson(res, 200, job);
+    const job = requireAuthorizedJob(req, res, jobMatch[1]);
+    if (!job) return;
+    const user = getCurrentUser(req);
+    sendJson(res, 200, { ...job, note: user ? getReportNote({ userId: user.id, jobId: job.id }) : null });
+    return;
+  }
+
+  const sharedMatch = url.pathname.match(/^\/api\/shared\/([^/]+)$/);
+  if (req.method === "GET" && sharedMatch) {
+    const shared = getSharedJob(req, res, sharedMatch[1]);
+    if (!shared) return;
+    sendJson(res, 200, { ...shared.job, shared: { expiresAt: shared.share.expires_at } });
     return;
   }
 
   const csvMatch = url.pathname.match(/^\/api\/jobs\/([^/]+)\/export\.csv$/);
   if (req.method === "GET" && csvMatch) {
-    const job = getJob(csvMatch[1]);
-    if (!job) {
-      sendJson(res, 404, { error: "Job not found" });
-      return;
-    }
+    const job = requireAuthorizedJob(req, res, csvMatch[1]);
+    if (!job) return;
     res.writeHead(200, {
       "content-type": "text/csv; charset=utf-8",
       "content-disposition": `attachment; filename="reference-validation-${job.id}.csv"`
@@ -1128,11 +1554,8 @@ async function handleApi(req, res) {
 
   const pdfMatch = url.pathname.match(/^\/api\/jobs\/([^/]+)\/export\.pdf$/);
   if (req.method === "GET" && pdfMatch) {
-    const job = getJob(pdfMatch[1]);
-    if (!job) {
-      sendJson(res, 404, { error: "Job not found" });
-      return;
-    }
+    const job = requireAuthorizedJob(req, res, pdfMatch[1]);
+    if (!job) return;
     const pdf = toPdf(job);
     res.writeHead(200, {
       "content-type": "application/pdf",
@@ -1144,11 +1567,8 @@ async function handleApi(req, res) {
 
   const docMatch = url.pathname.match(/^\/api\/jobs\/([^/]+)\/export\.doc$/);
   if (req.method === "GET" && docMatch) {
-    const job = getJob(docMatch[1]);
-    if (!job) {
-      sendJson(res, 404, { error: "Job not found" });
-      return;
-    }
+    const job = requireAuthorizedJob(req, res, docMatch[1]);
+    if (!job) return;
     res.writeHead(200, {
       "content-type": "application/msword; charset=utf-8",
       "content-disposition": `attachment; filename="cite-validator-${job.id}.doc"`
@@ -1159,11 +1579,8 @@ async function handleApi(req, res) {
 
   const bibMatch = url.pathname.match(/^\/api\/jobs\/([^/]+)\/export\.bib$/);
   if (req.method === "GET" && bibMatch) {
-    const job = getJob(bibMatch[1]);
-    if (!job) {
-      sendJson(res, 404, { error: "Job not found" });
-      return;
-    }
+    const job = requireAuthorizedJob(req, res, bibMatch[1]);
+    if (!job) return;
     res.writeHead(200, {
       "content-type": "application/x-bibtex; charset=utf-8",
       "content-disposition": `attachment; filename="cite-validator-${job.id}.bib"`
@@ -1174,16 +1591,29 @@ async function handleApi(req, res) {
 
   const risMatch = url.pathname.match(/^\/api\/jobs\/([^/]+)\/export\.ris$/);
   if (req.method === "GET" && risMatch) {
-    const job = getJob(risMatch[1]);
-    if (!job) {
-      sendJson(res, 404, { error: "Job not found" });
-      return;
-    }
+    const job = requireAuthorizedJob(req, res, risMatch[1]);
+    if (!job) return;
     res.writeHead(200, {
       "content-type": "application/x-research-info-systems; charset=utf-8",
       "content-disposition": `attachment; filename="cite-validator-${job.id}.ris"`
     });
     res.end(toRis(job));
+    return;
+  }
+
+  const correctedMatch = url.pathname.match(/^\/api\/jobs\/([^/]+)\/corrected\.txt$/);
+  if (req.method === "GET" && correctedMatch) {
+    const job = requireAuthorizedJob(req, res, correctedMatch[1]);
+    if (!job) return;
+    const corrected = job.results
+      .map((result) => result.correctedReference || result.originalReference)
+      .filter(Boolean)
+      .join("\n\n");
+    res.writeHead(200, {
+      "content-type": "text/plain; charset=utf-8",
+      "content-disposition": `attachment; filename="cite-validator-${job.id}-corrected.txt"`
+    });
+    res.end(corrected || "No corrected citations are available for this report.");
     return;
   }
 
@@ -1217,12 +1647,107 @@ async function sendResetEmail({ to, token, baseUrl }) {
   return { sent: true };
 }
 
+function buildUsageSummary(jobs) {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  return jobs.reduce((acc, job) => {
+    const counts = job.summary?.counts || {};
+    acc.totalReports += 1;
+    acc.totalReferences += Number(job.sourceCount || 0);
+    if (job.createdAt >= monthStart) acc.reportsThisMonth += 1;
+    acc.verified += counts.Verified || 0;
+    acc.fabricated += counts["Likely hallucinated/fabricated"] || 0;
+    return acc;
+  }, { totalReports: 0, reportsThisMonth: 0, totalReferences: 0, verified: 0, fabricated: 0 });
+}
+
+function buildRepairQueue(userId, jobs) {
+  const queue = [];
+  for (const item of jobs.slice(0, 50)) {
+    const job = getJob(item.id);
+    if (!job || (job.userId && job.userId !== userId)) continue;
+    for (const result of job.results) {
+      if (result.status !== "Verified") {
+        queue.push({
+          jobId: job.id,
+          index: result.index,
+          status: result.status,
+          risk: result.hallucinationRiskLevel,
+          reference: result.originalReference.slice(0, 260),
+          action: result.recommendedAction
+        });
+      }
+    }
+  }
+  return queue.slice(0, 100);
+}
+
+function buildSourceTimeline(userId, jobs) {
+  const timeline = [];
+  for (const item of jobs.slice(0, 30)) {
+    const job = getJob(item.id);
+    if (!job || (job.userId && job.userId !== userId)) continue;
+    for (const result of job.results) {
+      timeline.push({
+        at: job.createdAt,
+        jobId: job.id,
+        source: result.matchedSource?.sourceName || "No trusted source",
+        confidence: result.confidenceScore,
+        status: result.status
+      });
+    }
+  }
+  return timeline.slice(0, 120);
+}
+
+function buildNotifications(jobs) {
+  const latest = jobs[0];
+  const notifications = [];
+  if (latest) notifications.push({ type: "latest-report", message: `Latest report has ${latest.sourceCount} references.`, createdAt: latest.createdAt });
+  for (const [id, queued] of asyncValidationJobs.entries()) {
+    notifications.push({ type: "queued-job", jobId: id, message: queued.message, status: queued.status, createdAt: queued.createdAt });
+  }
+  return notifications.slice(0, 20);
+}
+
+function compareJobs(before, after) {
+  const beforeCounts = before.summary?.counts || {};
+  const afterCounts = after.summary?.counts || {};
+  const keys = [...new Set([...Object.keys(beforeCounts), ...Object.keys(afterCounts)])];
+  return {
+    before: before.id,
+    after: after.id,
+    sourceCountDelta: Number(after.results.length || 0) - Number(before.results.length || 0),
+    counts: Object.fromEntries(keys.map((key) => [key, { before: beforeCounts[key] || 0, after: afterCounts[key] || 0, delta: (afterCounts[key] || 0) - (beforeCounts[key] || 0) }])),
+    verifiedRateDelta: rate(afterCounts.Verified, after.results.length) - rate(beforeCounts.Verified, before.results.length)
+  };
+}
+
+function buildModerationSummary() {
+  const users = listUsers(100);
+  const riskyUsers = users.filter((user) => Number(user.referencesChecked || 0) > 0).slice(0, 20);
+  return {
+    queue: riskyUsers.map((user) => ({
+      userId: user.id,
+      email: user.email,
+      reports: user.jobCount,
+      references: user.referencesChecked,
+      status: user.status
+    }))
+  };
+}
+
+function rate(value, total) {
+  return Math.round((Number(value || 0) / Math.max(Number(total || 0), 1)) * 100);
+}
+
 function queueValidationJob({ referencesText, style, userId = "" }) {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   const queued = {
     id,
     createdAt: now,
+    userId,
     status: "queued",
     queued: true,
     progress: 0,
@@ -1236,7 +1761,7 @@ function queueValidationJob({ referencesText, style, userId = "" }) {
       queued.status = "running";
       queued.progress = 20;
       queued.message = "Validating references against trusted metadata sources.";
-      const result = await validateReferences({ referencesText, style });
+      const result = await validateReferences({ referencesText, style, enabledProviders: activeProviderControls() });
       result.id = id;
       result.userId = userId;
       saveJob(result);
@@ -1317,6 +1842,11 @@ async function handleAuth(req, res) {
         email: profile.email,
         avatarUrl: profile.picture || ""
       });
+      if (user.status === "suspended") {
+        clearSessionCookie(res);
+        redirect(res, "/login.html?error=suspended");
+        return;
+      }
       const session = createSession(user.id);
       setGoogleCallbackCookies(res, session);
       auditLog({ userId: user.id, action: "google_login" });

@@ -30,7 +30,7 @@
             </button>
             <div class="account-menu-panel" id="accountMenuPanel">
               <a href="/dashboard">Overview</a>
-              <button id="openSettingsBtn" type="button">Settings</button>
+              <a href="/settings">Settings</a>
               <a href="/validate">New validation</a>
               <a href="/converter">Converter</a>
               <a id="adminMenuLink" class="hidden" href="/ownershuvo">Admin</a>
@@ -44,10 +44,11 @@
           <div>
             <p class="eyebrow">Full features unlocked</p>
             <h1>Your citation workspace.</h1>
-            <p>Review validation history, reopen saved reports, export files, and keep your preferred citation settings ready for the next bibliography.</p>
+            <p>Review validation history, export corrected citations, manage account settings, and keep your preferred citation workflow ready.</p>
             <div class="workspace-hero-actions">
               <a class="primary-pill" href="/validate">Start validation</a>
               <a class="secondary-pill" href="/converter">Convert citations</a>
+              <a class="secondary-pill" href="/settings">Settings</a>
             </div>
           </div>
           <div class="workspace-status-card">
@@ -78,54 +79,123 @@
             <div class="skeleton-card"></div>
           </div>
         </section>
-        <section class="dashboard-settings glass-panel workspace-panel hidden" id="workspaceSettings">
+        <section class="workspace-panel glass-panel workspace-tools-panel">
           <div class="panel-heading">
-            <div><h2>Workspace settings</h2><p>Save local preferences for citation checking.</p></div>
-            <button id="closeSettingsBtn" class="ghost" type="button">Close settings</button>
+            <div><h2>Workspace tools</h2><p>Projects, repair queue, comparisons, presets, notes, shares, uploads, and notifications.</p></div>
           </div>
-          <form id="settingsForm" class="settings-grid">
-            <label>Default citation style
-              <select name="defaultStyle">
-                <option value="auto">Auto detect</option>
-                <option value="apa">APA</option>
-                <option value="ieee">IEEE</option>
-                <option value="mla">MLA</option>
-                <option value="chicago">Chicago</option>
-                <option value="vancouver">Vancouver</option>
-              </select>
-            </label>
-            <label>Default output
-              <select name="defaultOutput">
-                <option value="summary">Summary</option>
-                <option value="brief">Brief</option>
-                <option value="detailed">Detailed</option>
-              </select>
-            </label>
-            <label>Theme preference
-              <select name="themePreference">
-                <option value="system">Use current browser choice</option>
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </label>
-            <label>Default export
-              <select name="defaultExport">
-                <option value="pdf">PDF</option>
-                <option value="csv">CSV</option>
-                <option value="doc">DOC</option>
-                <option value="bib">BibTeX</option>
-                <option value="ris">RIS</option>
-              </select>
-            </label>
-            <button type="submit">Save settings</button>
-          </form>
-          <div class="danger-zone">
-            <div><strong>Delete account data</strong><p>This removes your user account and unlinks saved jobs from your profile.</p></div>
-            <button id="deleteAccountBtn" class="ghost danger-button" type="button">Delete account</button>
+          <div class="workspace-tools-grid">
+            <article class="settings-panel"><h3>Project folders</h3><form id="folderForm" class="inline-tool-form"><input name="name" placeholder="Paper, thesis, journal submission"><button type="submit">Add folder</button></form><div id="projectFolders" class="mini-list"></div></article>
+            <article class="settings-panel"><h3>Assign report to folder</h3><form id="folderAssignForm" class="inline-tool-form"><select name="jobId"></select><select name="folderId"></select><button type="submit">Assign</button></form><div id="folderAssignStatus" class="note"></div></article>
+            <article class="settings-panel"><h3>Repair queue</h3><div id="repairQueue" class="mini-list"></div></article>
+            <article class="settings-panel"><h3>Report comparison</h3><form id="compareForm" class="inline-tool-form"><select name="beforeJobId"></select><select name="afterJobId"></select><button type="submit">Compare</button></form><div id="comparisonResult" class="mini-list"></div></article>
+            <article class="settings-panel"><h3>Bibliography builder</h3><button id="buildBibliographyBtn" class="download" type="button">Build from visible reports</button><textarea id="bibliographyOutput" readonly placeholder="Corrected bibliography output"></textarea></article>
+            <article class="settings-panel"><h3>Export presets</h3><form id="presetForm" class="inline-tool-form"><input name="name" placeholder="APA + PDF"><input name="formats" placeholder="pdf,doc,bib"><button type="submit">Save preset</button></form><div id="exportPresets" class="mini-list"></div></article>
+            <article class="settings-panel"><h3>Source confidence timeline</h3><div id="sourceTimeline" class="mini-list"></div></article>
+            <article class="settings-panel"><h3>Report notes</h3><form id="noteForm" class="inline-tool-form"><select name="jobId"></select><input name="note" placeholder="Private note"><button type="submit">Save note</button></form><div id="reportNotes" class="mini-list"></div></article>
+            <article class="settings-panel"><h3>Private share links</h3><form id="shareForm" class="inline-tool-form"><select name="jobId"></select><button type="submit">Create link</button></form><div id="shareLinks" class="mini-list"></div></article>
+            <article class="settings-panel"><h3>Upload library</h3><form id="uploadRecordForm" class="inline-tool-form"><input name="file" type="file" accept=".txt,.bib,.ris,.csv,.pdf,text/plain,text/csv,application/x-bibtex,application/x-research-info-systems"><input name="name" placeholder="Imported bibliography.txt"><button type="submit">Save upload</button></form><div id="uploadLibrary" class="mini-list"></div></article>
+            <article class="settings-panel"><h3>Notifications</h3><div id="notificationCenter" class="mini-list"></div></article>
           </div>
-          <p id="settingsStatus" class="note"></p>
         </section>
-        <section class="results-section glass-panel workspace-panel">
+        <section class="dashboard-settings glass-panel workspace-panel settings-view hidden" id="workspaceSettings">
+          <div class="panel-heading">
+            <div><h2>Workspace settings</h2><p>Manage account, security, preferences, limits, history, and exports.</p></div>
+            <a class="download" href="/dashboard">Back to dashboard</a>
+          </div>
+          <div class="settings-layout">
+            <aside class="settings-sidebar" aria-label="Settings sections">
+              <a href="#account">Account</a>
+              <a href="#security">Password</a>
+              <a href="#preferences">Preferences</a>
+              <a href="#limits">Limits</a>
+              <a href="#history">History</a>
+              <a href="#danger">Danger</a>
+            </aside>
+            <div class="settings-panels">
+              <section class="settings-panel" id="account">
+                <h3>Account</h3>
+                <div id="settingsAccountCard" class="settings-account-card"></div>
+              </section>
+              <section class="settings-panel" id="security">
+                <h3>Password</h3>
+                <p class="note">Set or reset password login for this account. Google login continues to work when configured.</p>
+                <form id="passwordForm" class="settings-grid compact-settings-grid">
+                  <label>New password<input name="password" type="password" minlength="8" required placeholder="At least 8 characters"></label>
+                  <label>Confirm password<input name="confirmPassword" type="password" minlength="8" required placeholder="Repeat password"></label>
+                  <button type="submit">Update password</button>
+                </form>
+                <p id="passwordStatus" class="note"></p>
+              </section>
+              <section class="settings-panel" id="preferences">
+                <h3>Preferences</h3>
+                <form id="settingsForm" class="settings-grid">
+                  <label>Default citation style
+                    <select name="defaultStyle">
+                      <option value="auto">Auto detect</option>
+                      <option value="apa">APA</option>
+                      <option value="ieee">IEEE</option>
+                      <option value="mla">MLA</option>
+                      <option value="chicago">Chicago</option>
+                      <option value="vancouver">Vancouver</option>
+                    </select>
+                  </label>
+                  <label>Default output
+                    <select name="defaultOutput">
+                      <option value="summary">Summary</option>
+                      <option value="brief">Brief</option>
+                      <option value="detailed">Detailed</option>
+                    </select>
+                  </label>
+                  <label>Theme preference
+                    <select name="themePreference">
+                      <option value="system">Use current browser choice</option>
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                    </select>
+                  </label>
+                  <label>Default export
+                    <select name="defaultExport">
+                      <option value="pdf">PDF</option>
+                      <option value="csv">CSV</option>
+                      <option value="doc">DOC</option>
+                      <option value="bib">BibTeX</option>
+                      <option value="ris">RIS</option>
+                    </select>
+                  </label>
+                  <button type="submit">Save preferences</button>
+                </form>
+                <form id="advancedPreferenceForm" class="settings-grid compact-settings-grid">
+                  <label>Preferred sources<input name="preferredSources" placeholder="Crossref, OpenAlex, PubMed"></label>
+                  <label>Institution<input name="institution" placeholder="University or lab"></label>
+                  <button type="submit">Save advanced</button>
+                </form>
+                <p id="settingsStatus" class="note"></p>
+              </section>
+              <section class="settings-panel" id="limits">
+                <h3>Limits</h3>
+                <div class="settings-metric-grid">
+                  <span><strong>Unlimited</strong><small>Free checks</small></span>
+                  <span><strong id="settingsReportCount">0</strong><small>Saved reports</small></span>
+                  <span><strong id="settingsReferenceCount">0</strong><small>Saved references</small></span>
+                </div>
+              </section>
+              <section class="settings-panel" id="history">
+                <h3>History and exports</h3>
+                <p class="note">Download reports from the dashboard or clear saved validation history for this account.</p>
+                <div class="settings-actions">
+                  <a class="download" href="/dashboard#dashboardHistory">View all history</a>
+                  <button id="clearHistoryBtn" class="ghost danger-button" type="button">Clear history</button>
+                </div>
+                <p id="historyActionStatus" class="note"></p>
+              </section>
+              <section class="settings-panel danger-zone" id="danger">
+                <div><strong>Delete account data</strong><p>This removes your user account and unlinks saved jobs from your profile.</p></div>
+                <button id="deleteAccountBtn" class="ghost danger-button" type="button">Delete account</button>
+              </section>
+            </div>
+          </div>
+        </section>
+        <section class="results-section glass-panel workspace-panel" id="dashboardHistory">
           <div class="panel-heading">
             <div><h2>Recent validations</h2><p>Saved reports from your logged-in workspace.</p></div>
             <div class="history-tools">
@@ -134,6 +204,9 @@
                 <option value="all">All reports</option>
                 <option value="has-fabricated">Has fabricated risk</option>
                 <option value="all-clean">Mostly verified</option>
+              </select>
+              <select id="folderFilter" aria-label="Filter by folder">
+                <option value="all">All folders</option>
               </select>
             </div>
           </div>

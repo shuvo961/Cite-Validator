@@ -9,19 +9,20 @@ import { searchDataCite } from "./datacite.js";
 import { searchOpenLibrary } from "./openLibrary.js";
 import { searchEuropePmc } from "./europePmc.js";
 
-export async function searchTrustedSources(parsed) {
+export async function searchTrustedSources(parsed, options = {}) {
+  const enabled = options.enabledProviders || {};
   const adapters = [
-    resolveDoi,
-    searchCrossref,
-    searchOpenAlex,
-    searchPubMed,
-    searchEuropePmc,
-    searchArxiv,
-    searchGoogleBooks,
-    searchOpenLibrary,
-    searchDataCite,
-    searchSemanticScholar
-  ];
+    ["doi", resolveDoi],
+    ["crossref", searchCrossref],
+    ["openalex", searchOpenAlex],
+    ["pubmed", searchPubMed],
+    ["pubmed", searchEuropePmc],
+    ["arxiv", searchArxiv],
+    ["books", searchGoogleBooks],
+    ["books", searchOpenLibrary],
+    ["datacite", searchDataCite],
+    ["semanticScholar", searchSemanticScholar]
+  ].filter(([key]) => enabled[key] !== false).map(([, adapter]) => adapter);
 
   const settled = await Promise.allSettled(adapters.map((adapter) => adapter(parsed)));
   const evidence = [];

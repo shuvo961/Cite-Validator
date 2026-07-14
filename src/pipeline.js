@@ -5,7 +5,7 @@ import { selectBestMatch } from "./matcher.js";
 import { classifyReference } from "./hallucination.js";
 import { formatCitation } from "./citation.js";
 
-export async function validateReferences({ referencesText, style = "apa" }) {
+export async function validateReferences({ referencesText, style = "apa", enabledProviders = {} }) {
   const references = splitReferences(referencesText).slice(0, 80);
   const results = [];
   const duplicateMap = new Map();
@@ -26,7 +26,7 @@ export async function validateReferences({ referencesText, style = "apa" }) {
     const duplicateOf = duplicateMap.get(duplicateKey);
     if (!duplicateOf) duplicateMap.set(duplicateKey, index + 1);
 
-    const { records, sourceEvidence } = await searchTrustedSources(parsed);
+    const { records, sourceEvidence } = await searchTrustedSources(parsed, { enabledProviders });
     const match = selectBestMatch(parsed, records);
     const classification = classifyReference({
       parsed,

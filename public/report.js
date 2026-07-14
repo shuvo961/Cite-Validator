@@ -1,4 +1,6 @@
-const reportId = window.location.pathname.split("/").filter(Boolean).pop();
+const pathParts = window.location.pathname.split("/").filter(Boolean);
+const reportId = pathParts.pop();
+const isSharedReport = pathParts[0] === "shared";
 const meta = document.querySelector("#reportMeta");
 const summary = document.querySelector("#reportSummary");
 const results = document.querySelector("#reportResults");
@@ -36,7 +38,7 @@ rerunBtn?.addEventListener("click", async () => {
 
 async function loadReport() {
   try {
-    const response = await fetch(`/api/jobs/${reportId}`, { cache: "no-store" });
+    const response = await fetch(isSharedReport ? `/api/shared/${reportId}` : `/api/jobs/${reportId}`, { cache: "no-store" });
     const job = await response.json();
     if (!response.ok) throw new Error(job.error || "Report not found");
     currentJob = job;
@@ -50,11 +52,12 @@ async function loadReport() {
 function renderJob(job) {
   meta.textContent = `${new Date(job.createdAt).toLocaleString()} · ${job.results.length} references · ${String(job.style || "auto").toUpperCase()}`;
   for (const [type, link] of Object.entries(links)) {
+    if (isSharedReport) continue;
     link.href = `/api/jobs/${job.id}/export.${type}`;
     link.classList.remove("disabled");
   }
   renderSummary(job);
-  results.innerHTML = job.results.map(renderResult).join("");
+  results.innerHTML = `${job.note?.note ? `<article class="result-card verified"><h3>Private note</h3><p>${escapeHtml(job.note.note)}</p></article>` : ""}${job.results.map(renderResult).join("")}`;
 }
 
 function renderSummary(job) {

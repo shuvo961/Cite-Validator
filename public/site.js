@@ -71,6 +71,15 @@ function wireMobileNavigation() {
       button.setAttribute("aria-expanded", String(Boolean(isOpen)));
     });
   });
+
+  document.querySelectorAll(".site-header .site-nav a, .site-header .nav-actions a").forEach((link) => {
+    link.addEventListener("click", () => {
+      const header = link.closest(".site-header");
+      if (!header || window.matchMedia("(min-width: 821px)").matches) return;
+      header.classList.remove("nav-open");
+      header.querySelector(".mobile-menu-toggle")?.setAttribute("aria-expanded", "false");
+    });
+  });
 }
 
 function wireNavDropdowns() {
@@ -93,6 +102,7 @@ function wireNavDropdowns() {
 
   document.addEventListener("click", () => {
     document.querySelectorAll(".nav-menu.is-open").forEach((menu) => {
+      if (window.matchMedia("(max-width: 820px)").matches && menu.closest(".site-header")?.classList.contains("nav-open")) return;
       menu.classList.remove("is-open");
       menu.querySelector(".nav-menu-button")?.setAttribute("aria-expanded", "false");
     });
@@ -236,12 +246,40 @@ async function loadAnnouncement() {
     const data = await response.json();
     if (!response.ok || !data.enabled || !data.message) return;
     const banner = document.createElement("div");
-    banner.className = "announcement-banner";
+    banner.className = `announcement-banner ${["info", "success", "warning", "critical"].includes(data.severity) ? data.severity : "info"}`;
     banner.textContent = data.message;
     document.documentElement.classList.add("has-announcement");
     document.body.prepend(banner);
   } catch {
     // Announcement is optional.
+  }
+}
+
+async function syncAccountPreferences(user) {
+  if (!user) return;
+  try {
+    const response = await fetch("/api/workspace", { cache: "no-store" });
+    const data = await response.json();
+    if (!response.ok) return;
+    const preferences = data.workspace?.preferences || {};
+    const preferenceMap = {
+      defaultStyle: "cv_default_style",
+      defaultOutput: "cv_default_output",
+      defaultExport: "cv_default_export",
+      defaultSources: "cv_default_sources",
+      institution: "cv_institution"
+    };
+    for (const [serverKey, localKey] of Object.entries(preferenceMap)) {
+      if (preferences[serverKey]) localStorage.setItem(localKey, preferences[serverKey]);
+    }
+    if (preferences.themePreference && preferences.themePreference !== "system") {
+      localStorage.setItem("cv_theme", preferences.themePreference);
+    }
+    if (preferences.languagePreference) {
+      localStorage.setItem("cv_language", preferences.languagePreference);
+    }
+  } catch {
+    // Account preferences are optional; local defaults still work.
   }
 }
 
@@ -368,6 +406,7 @@ function setText(selector, text) {
 }
 
 const data = await getMe();
+await syncAccountPreferences(data?.user);
 normalizeInternalLinks();
 normalizePublicHeader();
 updateAuthLinks(data?.user);

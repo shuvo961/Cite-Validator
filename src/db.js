@@ -72,6 +72,15 @@ export function saveJob(job) {
   }
 }
 
+export function assignJobFolder({ userId, jobId, folderId }) {
+  const job = db.prepare("SELECT * FROM validation_jobs WHERE id = ? AND user_id = ?").get(jobId, userId);
+  if (!job) throw new Error("Report not found.");
+  const folder = db.prepare("SELECT * FROM project_folders WHERE id = ? AND user_id = ?").get(folderId, userId);
+  if (!folder) throw new Error("Folder not found.");
+  db.prepare("UPDATE validation_jobs SET folder_id = ? WHERE id = ?").run(folderId, jobId);
+  return { jobId, folderId };
+}
+
 export function getJob(id) {
   const jobRow = db.prepare("SELECT * FROM validation_jobs WHERE id = ?").get(id);
   if (!jobRow) return null;
@@ -84,6 +93,7 @@ export function getJob(id) {
     id: jobRow.id,
     createdAt: jobRow.created_at,
     userId: jobRow.user_id || "",
+    folderId: jobRow.folder_id || "",
     inputText: jobRow.input_text,
     style: jobRow.selected_style,
     summary: JSON.parse(jobRow.summary_json),
@@ -109,6 +119,24 @@ export function getJob(id) {
       recommendedAction: row.recommended_action
     }))
   };
+}
+
+export function getReportNote({ userId, jobId }) {
+  return db.prepare("SELECT * FROM report_notes WHERE user_id = ? AND job_id = ?").get(userId, jobId) || null;
+}
+
+export function getShareByToken(token) {
+  const row = db.prepare("SELECT * FROM share_links WHERE token = ? AND revoked_at = '' AND expires_at > ?").get(String(token || ""), new Date().toISOString());
+  if (!row) return null;
+  return row;
+}
+
+export function revokeShareLink({ userId, shareId }) {
+  const now = new Date().toISOString();
+  const result = db.prepare("UPDATE share_links SET revoked_at = ? WHERE id = ? AND user_id = ?")
+    .run(now, shareId, userId);
+  if (!result.changes) throw new Error("Share link not found.");
+  return { id: shareId, revoked_at: now };
 }
 
 export function upsertUser(profile) {
@@ -250,9 +278,106 @@ export function deleteUserAccount(userId) {
   return true;
 }
 
+export function setUserStatus({ userId, status }) {
+  const allowed = new Set(["active", "suspended"]);
+  const next = allowed.has(status) ? status : "active";
+  db.prepare("UPDATE users SET status = ? WHERE id = ?").run(next, userId);
+  return getUser(userId);
+}
+
+export function clearUserHistory(userId) {
+  if (!userId) return 0;
+  const result = db.prepare("DELETE FROM validation_jobs WHERE user_id = ?").run(userId);
+  return result.changes || 0;
+}
+
+export function listWorkspaceData(userId) {
+  return {
+    folders: db.prepare("SELECT * FROM project_folders WHERE user_id = ? ORDER BY created_at DESC").all(userId),
+    notes: db.prepare("SELECT * FROM report_notes WHERE user_id = ? ORDER BY updated_at DESC").all(userId),
+    shares: db.prepare("SELECT * FROM share_links WHERE user_id = ? ORDER BY created_at DESC").all(userId),
+    uploads: db.prepare("SELECT id, user_id, name, type, size, created_at FROM upload_library WHERE user_id = ? ORDER BY created_at DESC").all(userId),
+    presets: db.prepare("SELECT * FROM export_presets WHERE user_id = ? ORDER BY created_at DESC").all(userId),
+    preferences: Object.fromEntries(db.prepare("SELECT key, value FROM user_preferences WHERE user_id = ?").all(userId).map((row) => [row.key, row.value]))
+  };
+}
+
+export function createProjectFolder({ userId, name, description = "" }) {
+  const now = new Date().toISOString();
+  const item = { id: crypto.randomUUID(), user_id: userId, name: String(name || "Untitled project").slice(0, 120), description: String(description || "").slice(0, 500), created_at: now };
+  db.prepare("INSERT INTO project_folders (id, user_id, name, description, created_at) VALUES (?, ?, ?, ?, ?)")
+    .run(item.id, item.user_id, item.name, item.description, item.created_at);
+  return item;
+}
+
+export function saveReportNote({ userId, jobId, note }) {
+  const now = new Date().toISOString();
+  const id = `${userId}:${jobId}`;
+  db.prepare(`
+    INSERT INTO report_notes (id, user_id, job_id, note, updated_at)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET note = excluded.note, updated_at = excluded.updated_at
+  `).run(id, userId, jobId, String(note || "").slice(0, 2000), now);
+  return { id, user_id: userId, job_id: jobId, note: String(note || "").slice(0, 2000), updated_at: now };
+}
+
+export function createShareLink({ userId, jobId, expiresDays = 7 }) {
+  const now = new Date();
+  const expires = new Date(now.getTime() + Math.max(1, Math.min(Number(expiresDays || 7), 30)) * 86400000);
+  const item = {
+    id: crypto.randomUUID(),
+    user_id: userId,
+    job_id: jobId,
+    token: crypto.randomBytes(18).toString("hex"),
+    created_at: now.toISOString(),
+    expires_at: expires.toISOString(),
+    revoked_at: ""
+  };
+  db.prepare("INSERT INTO share_links (id, user_id, job_id, token, created_at, expires_at, revoked_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    .run(item.id, item.user_id, item.job_id, item.token, item.created_at, item.expires_at, item.revoked_at);
+  return item;
+}
+
+export function saveUploadRecord({ userId, name, type, size, contentText = "" }) {
+  const now = new Date().toISOString();
+  const content = String(contentText || "").slice(0, 500_000);
+  const item = { id: crypto.randomUUID(), user_id: userId, name: String(name || "Upload").slice(0, 180), type: String(type || "text/plain").slice(0, 80), size: Number(size || content.length || 0), content_text: content, created_at: now };
+  db.prepare("INSERT INTO upload_library (id, user_id, name, type, size, content_text, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    .run(item.id, item.user_id, item.name, item.type, item.size, item.content_text, item.created_at);
+  return item;
+}
+
+export function getUploadRecord({ userId, uploadId }) {
+  return db.prepare("SELECT * FROM upload_library WHERE id = ? AND user_id = ?").get(uploadId, userId) || null;
+}
+
+export function saveExportPreset({ userId, name, style, formats }) {
+  const now = new Date().toISOString();
+  const item = {
+    id: crypto.randomUUID(),
+    user_id: userId,
+    name: String(name || "Export preset").slice(0, 120),
+    style: String(style || "auto").slice(0, 40),
+    formats_json: JSON.stringify(Array.isArray(formats) ? formats.slice(0, 8) : []),
+    created_at: now
+  };
+  db.prepare("INSERT INTO export_presets (id, user_id, name, style, formats_json, created_at) VALUES (?, ?, ?, ?, ?, ?)")
+    .run(item.id, item.user_id, item.name, item.style, item.formats_json, item.created_at);
+  return item;
+}
+
+export function setUserPreference({ userId, key, value }) {
+  db.prepare(`
+    INSERT INTO user_preferences (user_id, key, value)
+    VALUES (?, ?, ?)
+    ON CONFLICT(user_id, key) DO UPDATE SET value = excluded.value
+  `).run(userId, String(key).slice(0, 80), String(value ?? "").slice(0, 1000));
+  return { key, value };
+}
+
 export function listUserJobs(userId, limit = 20) {
   return db.prepare(`
-    SELECT id, created_at, selected_style, source_count, summary_json
+    SELECT id, created_at, folder_id, selected_style, source_count, summary_json
     FROM validation_jobs
     WHERE user_id = ?
     ORDER BY created_at DESC
@@ -260,6 +385,7 @@ export function listUserJobs(userId, limit = 20) {
   `).all(userId, limit).map((row) => ({
     id: row.id,
     createdAt: row.created_at,
+    folderId: row.folder_id || "",
     style: row.selected_style,
     sourceCount: row.source_count,
     summary: JSON.parse(row.summary_json)
@@ -345,6 +471,39 @@ export function listFeedback(limit = 50) {
   `).all(limit);
 }
 
+export function updateFeedbackStatus({ id, status }) {
+  db.prepare("UPDATE user_feedback SET status = ? WHERE id = ?").run(String(status || "open").slice(0, 40), id);
+  return { id, status };
+}
+
+export function listAuditLogs(limit = 100) {
+  return db.prepare(`
+    SELECT audit_logs.*, users.email
+    FROM audit_logs
+    LEFT JOIN users ON users.id = audit_logs.user_id
+    ORDER BY audit_logs.created_at DESC
+    LIMIT ?
+  `).all(limit);
+}
+
+export function getAdminControlSettings() {
+  const settings = Object.fromEntries(db.prepare("SELECT key, value FROM app_settings").all().map((row) => [row.key, row.value]));
+  return {
+    providers: {
+      crossref: settings.provider_crossref !== "false",
+      openalex: settings.provider_openalex !== "false",
+      doi: settings.provider_doi !== "false",
+      pubmed: settings.provider_pubmed !== "false",
+      semanticScholar: settings.provider_semantic_scholar !== "false"
+    },
+    limits: {
+      syncValidationLimit: settings.limit_sync_validation || "",
+      perMinute: settings.limit_per_minute || "",
+      freeReports: settings.limit_free_reports || "unlimited"
+    }
+  };
+}
+
 export function auditLog({ userId = "", action, detail = {} }) {
   db.prepare(`
     INSERT INTO audit_logs (id, user_id, action, detail_json, created_at)
@@ -424,10 +583,66 @@ function migrate() {
   if (!tableColumnExists("validation_jobs", "user_id")) {
     db.exec("ALTER TABLE validation_jobs ADD COLUMN user_id TEXT DEFAULT ''");
   }
+  if (!tableColumnExists("validation_jobs", "folder_id")) {
+    db.exec("ALTER TABLE validation_jobs ADD COLUMN folder_id TEXT DEFAULT ''");
+  }
   if (!tableColumnExists("users", "password_hash")) {
     db.exec("ALTER TABLE users ADD COLUMN password_hash TEXT DEFAULT ''");
   }
+  if (!tableColumnExists("users", "status")) {
+    db.exec("ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'active'");
+  }
+  if (!tableColumnExists("user_feedback", "status")) {
+    db.exec("ALTER TABLE user_feedback ADD COLUMN status TEXT DEFAULT 'open'");
+  }
   db.exec(`
+    CREATE TABLE IF NOT EXISTS project_folders (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      created_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS report_notes (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      job_id TEXT NOT NULL,
+      note TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(user_id, job_id)
+    );
+    CREATE TABLE IF NOT EXISTS share_links (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      job_id TEXT NOT NULL,
+      token TEXT NOT NULL UNIQUE,
+      created_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      revoked_at TEXT DEFAULT ''
+    );
+    CREATE TABLE IF NOT EXISTS upload_library (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL,
+      size INTEGER DEFAULT 0,
+      content_text TEXT DEFAULT '',
+      created_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS export_presets (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      style TEXT DEFAULT 'auto',
+      formats_json TEXT DEFAULT '[]',
+      created_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS user_preferences (
+      user_id TEXT NOT NULL,
+      key TEXT NOT NULL,
+      value TEXT NOT NULL,
+      PRIMARY KEY(user_id, key)
+    );
     CREATE TABLE IF NOT EXISTS metadata_cache (
       cache_key TEXT PRIMARY KEY,
       source TEXT NOT NULL,
@@ -442,6 +657,9 @@ function migrate() {
   `);
   for (const [name, definition] of additions.slice(1)) {
     if (!names.has(name)) db.exec(`ALTER TABLE validation_results ADD COLUMN ${name} ${definition}`);
+  }
+  if (!tableColumnExists("upload_library", "content_text")) {
+    db.exec("ALTER TABLE upload_library ADD COLUMN content_text TEXT DEFAULT ''");
   }
   db.prepare("UPDATE users SET role = 'admin' WHERE lower(email) = ?").run(ADMIN_EMAIL);
 }
@@ -460,6 +678,7 @@ function serializeUser(row) {
     email: row.email,
     avatarUrl: row.avatar_url || "",
     role: row.role || "user",
+    status: row.status || "active",
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at
   };

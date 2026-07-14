@@ -47,7 +47,29 @@
         </section>
         <section class="admin-grid control-grid">
           <article class="glass-panel admin-panel"><h2>Users</h2><div id="adminUsers" class="history-list"></div></article>
+          <article class="glass-panel admin-panel"><h2>User management</h2><input id="adminUserSearch" type="search" placeholder="Search users"><div id="adminUserManagement" class="history-list"></div></article>
+          <article class="glass-panel admin-panel"><h2>Report moderation</h2><div id="adminModeration" class="history-list"></div></article>
           <article class="glass-panel admin-panel"><h2>Source health</h2><div id="adminSources" class="history-list"></div></article>
+          <article class="glass-panel admin-panel">
+            <h2>Source provider controls</h2>
+            <form id="providerControlsForm" class="admin-reset-form">
+              <label class="check-row"><input name="crossref" type="checkbox"> Crossref</label>
+              <label class="check-row"><input name="openalex" type="checkbox"> OpenAlex</label>
+              <label class="check-row"><input name="doi" type="checkbox"> DOI.org</label>
+              <label class="check-row"><input name="pubmed" type="checkbox"> PubMed</label>
+              <label class="check-row"><input name="semanticScholar" type="checkbox"> Semantic Scholar</label>
+              <button type="submit">Save providers</button>
+            </form>
+          </article>
+          <article class="glass-panel admin-panel">
+            <h2>Rate limits</h2>
+            <form id="rateLimitsForm" class="admin-reset-form">
+              <label>Per minute<input name="per_minute" placeholder="20"></label>
+              <label>Sync validation<input name="sync_validation" placeholder="30"></label>
+              <label>Free reports<input name="free_reports" placeholder="unlimited"></label>
+              <button type="submit">Save limits</button>
+            </form>
+          </article>
           <article class="glass-panel admin-panel">
             <h2>Platform monitor</h2>
             <div id="adminMonitor" class="history-list"></div>
@@ -71,12 +93,18 @@
             <p class="note">Show a short public banner across the app.</p>
             <form class="admin-reset-form" id="announcementForm">
               <label>Message<input name="message" maxlength="240" placeholder="Maintenance notice or update"></label>
+              <label>Severity<select name="severity"><option value="info">Info</option><option value="success">Success</option><option value="warning">Warning</option><option value="critical">Critical</option></select></label>
+              <label>Starts at<input name="startsAt" type="datetime-local"></label>
+              <label>Ends at<input name="endsAt" type="datetime-local"></label>
               <label class="check-row"><input name="enabled" type="checkbox"> Enabled</label>
               <button type="submit">Save banner</button>
             </form>
             <div id="announcementStatus" class="note"></div>
           </article>
           <article class="glass-panel admin-panel wide"><h2>Feedback</h2><div id="adminFeedback" class="history-list"></div></article>
+          <article class="glass-panel admin-panel wide"><h2>Audit logs</h2><div id="auditLogs" class="history-list"></div></article>
+          <article class="glass-panel admin-panel wide"><h2>Error explorer</h2><div id="errorExplorer" class="history-list"></div></article>
+          <article class="glass-panel admin-panel wide"><h2>Data export tools</h2><div class="history-actions"><a class="download" href="/api/admin/export.csv">Users CSV</a><a class="download" href="/api/admin/audit.csv">Audit CSV</a><a class="download" href="/api/admin/feedback.csv">Feedback CSV</a></div></article>
         </section>
       </main>
     </div>

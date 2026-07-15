@@ -1,4 +1,4 @@
-# Cite Validator
+# Cite Validator: https://cite-validator.onrender.com
 
 Cite Validator is a web app for checking academic references, validating DOI metadata, detecting likely fabricated citations, and exporting citation reports.
 
